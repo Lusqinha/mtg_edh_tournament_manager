@@ -38,7 +38,7 @@ const closeAll = () => {
 </script>
 
 <template>
-  <div class="bg-theme-base text-theme-text font-sans antialiased min-h-screen flex flex-col">
+  <div class="bg-theme-base text-theme-text font-sans antialiased min-h-screen flex flex-col overflow-x-hidden">
     <!-- Overlay -->
     <div v-if="showSidebar || showUserMenu || showNotifications" @click="closeAll" class="fixed inset-0 bg-black/50 z-40 transition-opacity"></div>
 

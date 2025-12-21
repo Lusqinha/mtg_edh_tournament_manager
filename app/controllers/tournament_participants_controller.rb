@@ -1,5 +1,6 @@
 class TournamentParticipantsController < ApplicationController
   before_action :set_tournament
+  before_action :authorize_organizer!
 
   def create
     @participant = @tournament.tournament_participants.build(user_id: params[:user_id])
@@ -21,5 +22,11 @@ class TournamentParticipantsController < ApplicationController
 
   def set_tournament
     @tournament = Tournament.find(params[:tournament_id])
+  end
+
+  def authorize_organizer!
+    unless @tournament.organizers.exists?(id: Current.user.id)
+      redirect_to tournament_path(@tournament), alert: "Você não tem permissão para gerenciar participantes deste torneio."
+    end
   end
 end

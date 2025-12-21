@@ -1,5 +1,6 @@
 class MatchesController < ApplicationController
   before_action :set_tournament, except: [:select_tournament]
+  before_action :authorize_organizer!, except: [:select_tournament, :show]
   before_action :set_match, only: %i[ edit update show ]
 
   def select_tournament
@@ -143,5 +144,11 @@ class MatchesController < ApplicationController
 
   def match_params
     params.require(:match).permit(:winner_id, match_results_attributes: [ :id, :score, :eliminations, :commander_damage, :final_life ])
+  end
+
+  def authorize_organizer!
+    unless @tournament.organizers.exists?(id: Current.user.id)
+      redirect_to tournament_path(@tournament), alert: "Você não tem permissão para gerenciar partidas deste torneio."
+    end
   end
 end

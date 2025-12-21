@@ -12,39 +12,17 @@ class TournamentsController < ApplicationController
 
   def show
     @tournament = Tournament.find(params[:id])
-
-    tournament_data = @tournament.as_json(only: [ :id, :name, :created_at, :number_of_rounds, :max_players ]).merge(
-      created_by: { nickname: @tournament.created_by.nickname },
-      is_organizer: @tournament.organizers.exists?(id: Current.user.id),
-      scorings: @tournament.tournament_scorings.order(:position).as_json(only: [:position, :points]),
-      achievements: @tournament.tournament_achievements.as_json(only: [:title, :description, :points, :unique_completion])
-    )
-
-    participants_data = @tournament.tournament_participants.includes(:user).order(score: :desc).map do |p|
-      matches_played = MatchResult.where(tournament_id: @tournament.id, user_id: p.user_id).count
-      wins = Match.where(tournament_id: @tournament.id, winner_id: p.user_id).count
-      
-      p.as_json(only: [ :score ]).merge(
-        user: { nickname: p.user.nickname },
-        matches_played: matches_played,
-        wins: wins,
-        win_rate: matches_played > 0 ? ((wins.to_f / matches_played) * 100).round(1) : 0
-      )
+    
+    available_users = if @tournament.organizers.exists?(id: Current.user.id)
+      User.where.not(id: @tournament.users.select(:id)).select(:id, :nickname)
+    else
+      []
     end
-
-    matches_data = @tournament.matches.includes(:winner, :created_by).order(created_at: :desc).map do |m|
-      m.as_json(only: [ :id, :created_at ]).merge(
-        winner: m.winner ? { nickname: m.winner.nickname } : nil,
-        created_by: { nickname: m.created_by.nickname }
-      )
-    end
-
-    available_users = User.where.not(id: @tournament.users.select(:id)).select(:id, :nickname)
 
     render inertia: "Tournaments/Show", props: {
-      tournament: tournament_data,
-      participants: participants_data,
-      matches: matches_data,
+      tournament: @tournament.details_for_display(Current.user),
+      participants: @tournament.standings_data,
+      matches: @tournament.matches_data,
       available_users: available_users
     }
   end

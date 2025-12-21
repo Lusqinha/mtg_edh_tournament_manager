@@ -1,7 +1,10 @@
 <script setup>
-import { Link, useForm } from '@inertiajs/vue3'
+import { Link } from '@inertiajs/vue3'
 import { ref } from 'vue'
 import { Icon } from '@iconify/vue'
+import AddPlayerModal from '../../components/Tournament/AddPlayerModal.vue'
+import StandingsList from '../../components/Tournament/StandingsList.vue'
+import MatchesList from '../../components/Tournament/MatchesList.vue'
 
 const props = defineProps({
   tournament: Object,
@@ -12,29 +15,6 @@ const props = defineProps({
 
 const showAddPlayerModal = ref(false)
 const activeTab = ref('standings') // standings, matches, rules
-
-const addPlayerForm = useForm({
-  user_id: ''
-})
-
-const submitAddPlayer = () => {
-  addPlayerForm.post(`/tournaments/${props.tournament.id}/participants`, {
-    onSuccess: () => {
-      showAddPlayerModal.value = false
-      addPlayerForm.reset()
-    }
-  })
-}
-
-const formatDate = (dateString) => {
-  return new Intl.DateTimeFormat('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  }).format(new Date(dateString))
-}
 </script>
 
 <template>
@@ -50,66 +30,47 @@ const formatDate = (dateString) => {
         </div>
       </div>
 
-      <div v-if="tournament.is_organizer" class="flex gap-3 mb-8 overflow-x-auto pb-2 custom-scrollbar">
+      <div v-if="tournament.is_organizer || tournament.is_participant" class="flex gap-3 mb-8 overflow-x-auto pb-2 custom-scrollbar">
         <Link :href="`/tournaments/${tournament.id}/matches/new`" class="flex items-center gap-2 px-4 py-2 rounded-md bg-theme-primary text-white font-medium text-sm hover:bg-github-btn-primary-hover transition-colors whitespace-nowrap border border-[rgba(240,246,252,0.1)] shadow-sm">
           <Icon icon="mdi:sword-cross" class="w-4 h-4" />
-          Iniciar Partida
+          <span class="hidden sm:inline">Iniciar Partida</span>
         </Link>
         
-        <button @click="showAddPlayerModal = true" class="flex items-center gap-2 px-4 py-2 rounded-md bg-github-btn-bg text-theme-text font-medium text-sm hover:bg-github-btn-hover transition-colors whitespace-nowrap border border-theme-border cursor-pointer">
+        <button v-if="tournament.is_organizer" @click="showAddPlayerModal = true" class="flex items-center gap-2 px-4 py-2 rounded-md bg-github-btn-bg text-theme-text font-medium text-sm hover:bg-github-btn-hover transition-colors whitespace-nowrap border border-theme-border cursor-pointer">
           <Icon icon="mdi:account-plus" class="w-4 h-4" />
-          Adicionar Jogador
+          <span class="hidden sm:inline">Adicionar Jogador</span>
         </button>
 
-        <Link :href="`/tournaments/${tournament.id}/edit`" class="flex items-center gap-2 px-4 py-2 rounded-md bg-github-btn-bg text-theme-text font-medium text-sm hover:bg-github-btn-hover transition-colors whitespace-nowrap border border-theme-border">
+        <Link v-if="tournament.is_organizer" :href="`/tournaments/${tournament.id}/edit`" class="flex items-center gap-2 px-4 py-2 rounded-md bg-github-btn-bg text-theme-text font-medium text-sm hover:bg-github-btn-hover transition-colors whitespace-nowrap border border-theme-border">
           <Icon icon="mdi:pencil" class="w-4 h-4" />
-          Editar Torneio
+          <span class="hidden sm:inline">Editar Torneio</span>
         </Link>
       </div>
 
-      <!-- Add Player Modal -->
-      <div v-if="showAddPlayerModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-theme-base/80 backdrop-blur-sm">
-        <div class="bg-theme-surface rounded-md border border-theme-border shadow-xl w-full max-w-md p-6">
-          <h3 class="text-lg font-semibold text-theme-text mb-4">Adicionar Jogador</h3>
-          
-          <form @submit.prevent="submitAddPlayer" class="space-y-4">
-            <div class="space-y-2">
-              <label for="user_id" class="text-sm font-semibold text-theme-text">Selecione o Jogador</label>
-              <select id="user_id" v-model="addPlayerForm.user_id" class="w-full px-3 py-2 rounded-md bg-theme-base border border-theme-border focus:border-theme-secondary focus:ring-1 focus:ring-theme-secondary text-theme-text outline-none appearance-none text-sm" required>
-                <option value="" disabled>Selecione um jogador...</option>
-                <option v-for="user in available_users" :key="user.id" :value="user.id">
-                  {{ user.nickname }}
-                </option>
-              </select>
-              <div v-if="addPlayerForm.errors.user_id" class="text-[#ff7b72] text-xs">{{ addPlayerForm.errors.user_id }}</div>
-            </div>
-
-            <div class="flex gap-3 pt-2">
-              <button type="submit" :disabled="addPlayerForm.processing" class="flex-1 py-2 rounded-md bg-theme-primary text-white font-medium hover:bg-github-btn-primary-hover transition-colors cursor-pointer disabled:opacity-50 border border-[rgba(240,246,252,0.1)] shadow-sm text-sm">
-                {{ addPlayerForm.processing ? 'Adicionando...' : 'Adicionar' }}
-              </button>
-              <button type="button" @click="showAddPlayerModal = false" class="px-4 py-2 rounded-md bg-github-btn-bg text-theme-text font-medium hover:bg-github-btn-hover transition-colors border border-theme-border text-sm">
-                Cancelar
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
+      <AddPlayerModal 
+        :show="showAddPlayerModal" 
+        :available-users="available_users" 
+        :tournament-id="tournament.id"
+        @close="showAddPlayerModal = false"
+      />
 
       <!-- Tabs -->
-      <div class="border-b border-theme-border mb-6">
+      <div class="border-b border-theme-border mb-6 overflow-x-auto overflow-y-hidden custom-scrollbar">
         <nav class="-mb-px flex space-x-8" aria-label="Tabs">
           <button @click="activeTab = 'standings'" :class="[activeTab === 'standings' ? 'border-theme-secondary text-theme-secondary' : 'border-transparent text-theme-muted hover:text-theme-text hover:border-theme-muted', 'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2']">
             <Icon icon="mdi:podium" class="w-4 h-4" />
-            Classificação
+            <span class="hidden sm:inline">Classificação</span>
+            <span class="sm:hidden">Rank</span>
           </button>
           <button @click="activeTab = 'matches'" :class="[activeTab === 'matches' ? 'border-theme-secondary text-theme-secondary' : 'border-transparent text-theme-muted hover:text-theme-text hover:border-theme-muted', 'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2']">
             <Icon icon="mdi:flash" class="w-4 h-4" />
-            Partidas
+            <span class="hidden sm:inline">Partidas</span>
+            <span class="sm:hidden">Jogos</span>
           </button>
           <button @click="activeTab = 'rules'" :class="[activeTab === 'rules' ? 'border-theme-secondary text-theme-secondary' : 'border-transparent text-theme-muted hover:text-theme-text hover:border-theme-muted', 'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2']">
             <Icon icon="mdi:book-open-variant" class="w-4 h-4" />
-            Regras e Pontuação
+            <span class="hidden sm:inline">Regras e Pontuação</span>
+            <span class="sm:hidden">Regras</span>
           </button>
         </nav>
       </div>
@@ -118,63 +79,12 @@ const formatDate = (dateString) => {
       <div>
         <!-- Standings Tab -->
         <div v-if="activeTab === 'standings'" class="space-y-4">
-          <div class="bg-theme-surface rounded-md border border-theme-border overflow-hidden">
-            <div class="overflow-x-auto custom-scrollbar">
-              <table class="w-full text-sm text-left">
-                <thead class="text-xs text-theme-muted uppercase bg-theme-base border-b border-theme-border">
-                  <tr>
-                    <th class="px-6 py-3 font-medium">Pos</th>
-                    <th class="px-6 py-3 font-medium">Jogador</th>
-                    <th class="px-6 py-3 font-medium text-center">Partidas</th>
-                    <th class="px-6 py-3 font-medium text-center">Vitórias</th>
-                    <th class="px-6 py-3 font-medium text-center">Win Rate</th>
-                    <th class="px-6 py-3 font-medium text-right">Pontos</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(participant, index) in participants" :key="index" class="border-b border-theme-border last:border-0 hover:bg-github-btn-bg/50 transition-colors">
-                    <td class="px-6 py-4">
-                      <div :class="['w-6 h-6 flex items-center justify-center rounded-full font-bold text-xs', index === 0 ? 'bg-[#e3b341]/20 text-[#e3b341]' : (index === 1 ? 'bg-theme-muted/20 text-theme-muted' : (index === 2 ? 'bg-[#d29922]/20 text-[#d29922]' : 'bg-theme-border/50 text-theme-muted'))]">
-                        {{ index + 1 }}
-                      </div>
-                    </td>
-                    <td class="px-6 py-4 font-medium text-theme-text">{{ participant.user.nickname }}</td>
-                    <td class="px-6 py-4 text-center text-theme-muted">{{ participant.matches_played }}</td>
-                    <td class="px-6 py-4 text-center text-theme-muted">{{ participant.wins }}</td>
-                    <td class="px-6 py-4 text-center text-theme-muted">{{ participant.win_rate }}%</td>
-                    <td class="px-6 py-4 text-right font-bold text-theme-secondary">{{ participant.score }}</td>
-                  </tr>
-                  <tr v-if="participants.length === 0">
-                    <td colspan="6" class="px-6 py-8 text-center text-theme-muted">
-                      Nenhum participante registrado ainda.
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <StandingsList :participants="participants" />
         </div>
 
         <!-- Matches Tab -->
         <div v-if="activeTab === 'matches'" class="space-y-4">
-          <div class="grid gap-4">
-            <div v-for="match in matches" :key="match.id" class="p-4 rounded-md bg-theme-surface border border-theme-border hover:border-theme-muted transition-all">
-              <div class="flex justify-between items-start mb-2">
-                <div class="flex items-center gap-2">
-                  <span class="text-sm text-theme-muted">Vencedor:</span>
-                  <span class="font-semibold text-theme-secondary">{{ match.winner ? match.winner.nickname : 'Empate' }}</span>
-                </div>
-                <span class="text-xs text-theme-muted">{{ formatDate(match.created_at) }}</span>
-              </div>
-              <div class="text-xs text-theme-muted">
-                Registrado por {{ match.created_by.nickname }}
-              </div>
-            </div>
-            <div v-if="matches.length === 0" class="p-12 rounded-md bg-theme-surface border border-dashed border-theme-border text-center">
-              <Icon icon="mdi:cards-playing-outline" class="w-12 h-12 text-theme-muted mx-auto mb-3 opacity-50" />
-              <p class="text-theme-muted">Nenhuma partida registrada ainda</p>
-            </div>
-          </div>
+          <MatchesList :matches="matches" />
         </div>
 
         <!-- Rules Tab -->
