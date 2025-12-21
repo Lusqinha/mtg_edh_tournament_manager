@@ -11,6 +11,8 @@ const props = defineProps({
 })
 
 const showAddPlayerModal = ref(false)
+const activeTab = ref('standings') // standings, matches, rules
+
 const addPlayerForm = useForm({
   user_id: ''
 })
@@ -36,7 +38,7 @@ const formatDate = (dateString) => {
 </script>
 
 <template>
-  <div class="max-w-3xl mx-auto px-4 py-8">
+  <div class="max-w-5xl mx-auto px-4 py-8">
     <div class="mb-8">
       <div class="flex items-center gap-3 mb-6">
         <Link href="/tournaments" class="p-1.5 rounded-md hover:bg-github-btn-bg transition-colors text-theme-muted hover:text-theme-secondary">
@@ -58,6 +60,11 @@ const formatDate = (dateString) => {
           <Icon icon="mdi:account-plus" class="w-4 h-4" />
           Adicionar Jogador
         </button>
+
+        <Link :href="`/tournaments/${tournament.id}/edit`" class="flex items-center gap-2 px-4 py-2 rounded-md bg-github-btn-bg text-theme-text font-medium text-sm hover:bg-github-btn-hover transition-colors whitespace-nowrap border border-theme-border">
+          <Icon icon="mdi:pencil" class="w-4 h-4" />
+          Editar Torneio
+        </Link>
       </div>
 
       <!-- Add Player Modal -->
@@ -89,43 +96,73 @@ const formatDate = (dateString) => {
         </div>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Ranking Section -->
-        <div class="lg:col-span-1 space-y-3">
-          <h3 class="text-sm font-semibold text-theme-text flex items-center gap-2">
-            <Icon icon="mdi:podium" class="w-4 h-4 text-[#e3b341]" />
+      <!-- Tabs -->
+      <div class="border-b border-theme-border mb-6">
+        <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+          <button @click="activeTab = 'standings'" :class="[activeTab === 'standings' ? 'border-theme-secondary text-theme-secondary' : 'border-transparent text-theme-muted hover:text-theme-text hover:border-theme-muted', 'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2']">
+            <Icon icon="mdi:podium" class="w-4 h-4" />
             Classificação
-          </h3>
-          
+          </button>
+          <button @click="activeTab = 'matches'" :class="[activeTab === 'matches' ? 'border-theme-secondary text-theme-secondary' : 'border-transparent text-theme-muted hover:text-theme-text hover:border-theme-muted', 'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2']">
+            <Icon icon="mdi:flash" class="w-4 h-4" />
+            Partidas
+          </button>
+          <button @click="activeTab = 'rules'" :class="[activeTab === 'rules' ? 'border-theme-secondary text-theme-secondary' : 'border-transparent text-theme-muted hover:text-theme-text hover:border-theme-muted', 'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2']">
+            <Icon icon="mdi:book-open-variant" class="w-4 h-4" />
+            Regras e Pontuação
+          </button>
+        </nav>
+      </div>
+
+      <!-- Content -->
+      <div>
+        <!-- Standings Tab -->
+        <div v-if="activeTab === 'standings'" class="space-y-4">
           <div class="bg-theme-surface rounded-md border border-theme-border overflow-hidden">
-            <div v-for="(participant, index) in participants" :key="index" class="flex items-center justify-between p-3 border-b border-theme-border last:border-0 hover:bg-github-btn-bg/50 transition-colors">
-              <div class="flex items-center gap-3">
-                <div :class="['w-6 h-6 flex items-center justify-center rounded-full font-bold text-xs', index === 0 ? 'bg-[#e3b341]/20 text-[#e3b341]' : (index === 1 ? 'bg-theme-muted/20 text-theme-muted' : (index === 2 ? 'bg-[#d29922]/20 text-[#d29922]' : 'bg-theme-border/50 text-theme-muted'))]">
-                  {{ index + 1 }}
-                </div>
-                <span class="font-medium text-theme-text text-sm">{{ participant.user.nickname }}</span>
-              </div>
-              <span class="font-semibold text-theme-secondary text-sm">{{ participant.score }} pts</span>
-            </div>
-            <div v-if="participants.length === 0" class="p-6 text-center text-theme-muted text-sm">
-              Nenhum participante ainda
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm text-left">
+                <thead class="text-xs text-theme-muted uppercase bg-theme-base border-b border-theme-border">
+                  <tr>
+                    <th class="px-6 py-3 font-medium">Pos</th>
+                    <th class="px-6 py-3 font-medium">Jogador</th>
+                    <th class="px-6 py-3 font-medium text-center">Partidas</th>
+                    <th class="px-6 py-3 font-medium text-center">Vitórias</th>
+                    <th class="px-6 py-3 font-medium text-center">Win Rate</th>
+                    <th class="px-6 py-3 font-medium text-right">Pontos</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(participant, index) in participants" :key="index" class="border-b border-theme-border last:border-0 hover:bg-github-btn-bg/50 transition-colors">
+                    <td class="px-6 py-4">
+                      <div :class="['w-6 h-6 flex items-center justify-center rounded-full font-bold text-xs', index === 0 ? 'bg-[#e3b341]/20 text-[#e3b341]' : (index === 1 ? 'bg-theme-muted/20 text-theme-muted' : (index === 2 ? 'bg-[#d29922]/20 text-[#d29922]' : 'bg-theme-border/50 text-theme-muted'))]">
+                        {{ index + 1 }}
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 font-medium text-theme-text">{{ participant.user.nickname }}</td>
+                    <td class="px-6 py-4 text-center text-theme-muted">{{ participant.matches_played }}</td>
+                    <td class="px-6 py-4 text-center text-theme-muted">{{ participant.wins }}</td>
+                    <td class="px-6 py-4 text-center text-theme-muted">{{ participant.win_rate }}%</td>
+                    <td class="px-6 py-4 text-right font-bold text-theme-secondary">{{ participant.score }}</td>
+                  </tr>
+                  <tr v-if="participants.length === 0">
+                    <td colspan="6" class="px-6 py-8 text-center text-theme-muted">
+                      Nenhum participante registrado ainda.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
 
-        <!-- Matches Section -->
-        <div class="lg:col-span-2 space-y-3">
-          <h3 class="text-sm font-semibold text-theme-text flex items-center gap-2">
-            <Icon icon="mdi:flash" class="w-4 h-4 text-theme-secondary" />
-            Partidas Recentes
-          </h3>
-
-          <div class="space-y-2">
-            <div v-for="match in matches" :key="match.id" class="p-3 rounded-md bg-theme-surface border border-theme-border hover:border-theme-muted transition-all">
-              <div class="flex justify-between items-start mb-1">
+        <!-- Matches Tab -->
+        <div v-if="activeTab === 'matches'" class="space-y-4">
+          <div class="grid gap-4">
+            <div v-for="match in matches" :key="match.id" class="p-4 rounded-md bg-theme-surface border border-theme-border hover:border-theme-muted transition-all">
+              <div class="flex justify-between items-start mb-2">
                 <div class="flex items-center gap-2">
-                  <span class="text-xs text-theme-muted">Vencedor:</span>
-                  <span class="font-semibold text-theme-secondary text-sm">{{ match.winner ? match.winner.nickname : 'Empate' }}</span>
+                  <span class="text-sm text-theme-muted">Vencedor:</span>
+                  <span class="font-semibold text-theme-secondary">{{ match.winner ? match.winner.nickname : 'Empate' }}</span>
                 </div>
                 <span class="text-xs text-theme-muted">{{ formatDate(match.created_at) }}</span>
               </div>
@@ -133,8 +170,70 @@ const formatDate = (dateString) => {
                 Registrado por {{ match.created_by.nickname }}
               </div>
             </div>
-            <div v-if="matches.length === 0" class="p-8 rounded-md bg-theme-surface border border-dashed border-theme-border text-center">
-              <p class="text-theme-muted text-sm">Nenhuma partida registrada ainda</p>
+            <div v-if="matches.length === 0" class="p-12 rounded-md bg-theme-surface border border-dashed border-theme-border text-center">
+              <Icon icon="mdi:cards-playing-outline" class="w-12 h-12 text-theme-muted mx-auto mb-3 opacity-50" />
+              <p class="text-theme-muted">Nenhuma partida registrada ainda</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rules Tab -->
+        <div v-if="activeTab === 'rules'" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Scoring Rules -->
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-theme-text flex items-center gap-2">
+              <Icon icon="mdi:format-list-numbered" class="w-5 h-5 text-theme-secondary" />
+              Pontuação por Posição
+            </h3>
+            <div class="bg-theme-surface rounded-md border border-theme-border overflow-hidden">
+              <table class="w-full text-sm text-left">
+                <thead class="text-xs text-theme-muted uppercase bg-theme-base border-b border-theme-border">
+                  <tr>
+                    <th class="px-4 py-2 font-medium">Posição</th>
+                    <th class="px-4 py-2 font-medium text-right">Pontos</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="scoring in tournament.scorings" :key="scoring.position" class="border-b border-theme-border last:border-0">
+                    <td class="px-4 py-2 text-theme-text">{{ scoring.position }}º Lugar</td>
+                    <td class="px-4 py-2 text-right font-medium text-theme-secondary">{{ scoring.points > 0 ? '+' : '' }}{{ scoring.points }}</td>
+                  </tr>
+                  <tr v-if="!tournament.scorings || tournament.scorings.length === 0">
+                    <td colspan="2" class="px-4 py-4 text-center text-theme-muted italic">
+                      Nenhuma regra de pontuação definida.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Achievements -->
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-theme-text flex items-center gap-2">
+              <Icon icon="mdi:trophy-outline" class="w-5 h-5 text-[#e3b341]" />
+              Conquistas (Achievements)
+            </h3>
+            <div class="space-y-3">
+              <div v-for="(achievement, index) in tournament.achievements" :key="index" :class="['p-3 rounded-md bg-theme-surface border transition-colors', achievement.points < 0 ? 'border-red-500/30 bg-red-500/5' : 'border-theme-border']">
+                <div class="flex justify-between items-start mb-1">
+                  <div class="flex items-center gap-1.5">
+                    <Icon v-if="achievement.points < 0" icon="mdi:alert-circle-outline" class="w-4 h-4 text-red-400" />
+                    <h4 :class="['font-medium text-sm', achievement.points < 0 ? 'text-red-400' : 'text-theme-text']">{{ achievement.title }}</h4>
+                  </div>
+                  <span :class="['text-xs font-bold px-2 py-0.5 rounded-full', achievement.points < 0 ? 'text-red-400 bg-red-400/10' : 'text-theme-secondary bg-theme-secondary/10']">
+                    {{ achievement.points > 0 ? '+' : '' }}{{ achievement.points }} pts
+                  </span>
+                </div>
+                <p class="text-xs text-theme-muted mb-2">{{ achievement.description }}</p>
+                <div v-if="achievement.unique_completion" class="flex items-center gap-1 text-[10px] text-[#e3b341] uppercase font-bold tracking-wider">
+                  <Icon icon="mdi:star" class="w-3 h-3" />
+                  Único por partida
+                </div>
+              </div>
+              <div v-if="!tournament.achievements || tournament.achievements.length === 0" class="p-6 rounded-md bg-theme-surface border border-dashed border-theme-border text-center text-theme-muted text-sm italic">
+                Nenhuma conquista cadastrada.
+              </div>
             </div>
           </div>
         </div>

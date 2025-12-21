@@ -1,14 +1,34 @@
 <script setup>
-import { Link } from '@inertiajs/vue3'
+import { Link, usePage, useForm } from '@inertiajs/vue3'
 import { Icon } from '@iconify/vue'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
+import { ref, computed } from 'vue'
 
 const props = defineProps({
   profile_user: Object,
   tournament_stats: Array,
   recent_matches: Array
 })
+
+const page = usePage()
+const isCurrentUser = computed(() => page.props.auth.user && page.props.auth.user.id === props.profile_user.id)
+
+const showPasswordModal = ref(false)
+const passwordForm = useForm({
+  current_password: '',
+  password: '',
+  password_confirmation: ''
+})
+
+const submitPasswordChange = () => {
+  passwordForm.put('/profile', {
+    onSuccess: () => {
+      showPasswordModal.value = false
+      passwordForm.reset()
+    }
+  })
+}
 
 const formatDate = (date) => {
   return format(new Date(date), "d 'de' MMM, yyyy", { locale: ptBR })
@@ -22,13 +42,55 @@ const formatDateTime = (date) => {
 <template>
   <div class="max-w-3xl mx-auto px-4 py-8">
     <!-- Profile Header -->
-    <div class="mb-8 flex items-center gap-4">
-      <div class="w-16 h-16 rounded-full bg-theme-surface border border-theme-border flex items-center justify-center text-theme-muted">
-        <Icon icon="mdi:account" class="w-8 h-8" />
+    <div class="mb-8 flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <div class="w-16 h-16 rounded-full bg-theme-surface border border-theme-border flex items-center justify-center text-theme-muted">
+          <Icon icon="mdi:account" class="w-8 h-8" />
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold text-theme-text">{{ profile_user.nickname }}</h1>
+          <p class="text-sm text-theme-muted">Membro desde {{ formatDate(profile_user.created_at) }}</p>
+        </div>
       </div>
-      <div>
-        <h1 class="text-2xl font-bold text-theme-text">{{ profile_user.nickname }}</h1>
-        <p class="text-sm text-theme-muted">Membro desde {{ formatDate(profile_user.created_at) }}</p>
+
+      <button v-if="isCurrentUser" @click="showPasswordModal = true" class="flex items-center gap-2 px-4 py-2 rounded-md bg-github-btn-bg text-theme-text font-medium text-sm hover:bg-github-btn-hover transition-colors border border-theme-border">
+        <Icon icon="mdi:lock-reset" class="w-4 h-4" />
+        Alterar Senha
+      </button>
+    </div>
+
+    <!-- Password Modal -->
+    <div v-if="showPasswordModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-theme-base/80 backdrop-blur-sm">
+      <div class="bg-theme-surface rounded-md border border-theme-border shadow-xl w-full max-w-md p-6">
+        <h3 class="text-lg font-semibold text-theme-text mb-4">Alterar Senha</h3>
+        
+        <form @submit.prevent="submitPasswordChange" class="space-y-4">
+          <div class="space-y-2">
+            <label for="current_password" class="text-sm font-semibold text-theme-text">Senha Atual</label>
+            <input v-model="passwordForm.current_password" type="password" id="current_password" class="w-full px-3 py-2 rounded-md bg-theme-base border border-theme-border focus:border-theme-secondary focus:ring-1 focus:ring-theme-secondary text-theme-text outline-none text-sm" required />
+            <div v-if="passwordForm.errors.current_password" class="text-[#ff7b72] text-xs">{{ passwordForm.errors.current_password }}</div>
+          </div>
+
+          <div class="space-y-2">
+            <label for="password" class="text-sm font-semibold text-theme-text">Nova Senha</label>
+            <input v-model="passwordForm.password" type="password" id="password" class="w-full px-3 py-2 rounded-md bg-theme-base border border-theme-border focus:border-theme-secondary focus:ring-1 focus:ring-theme-secondary text-theme-text outline-none text-sm" required />
+            <div v-if="passwordForm.errors.password" class="text-[#ff7b72] text-xs">{{ passwordForm.errors.password }}</div>
+          </div>
+
+          <div class="space-y-2">
+            <label for="password_confirmation" class="text-sm font-semibold text-theme-text">Confirmar Nova Senha</label>
+            <input v-model="passwordForm.password_confirmation" type="password" id="password_confirmation" class="w-full px-3 py-2 rounded-md bg-theme-base border border-theme-border focus:border-theme-secondary focus:ring-1 focus:ring-theme-secondary text-theme-text outline-none text-sm" required />
+          </div>
+
+          <div class="flex gap-3 pt-2">
+            <button type="submit" :disabled="passwordForm.processing" class="flex-1 py-2 rounded-md bg-theme-primary text-white font-medium hover:bg-github-btn-primary-hover transition-colors cursor-pointer disabled:opacity-50 border border-[rgba(240,246,252,0.1)] shadow-sm text-sm">
+              {{ passwordForm.processing ? 'Salvando...' : 'Salvar' }}
+            </button>
+            <button type="button" @click="showPasswordModal = false" class="px-4 py-2 rounded-md bg-github-btn-bg text-theme-text font-medium hover:bg-github-btn-hover transition-colors border border-theme-border text-sm">
+              Cancelar
+            </button>
+          </div>
+        </form>
       </div>
     </div>
 
