@@ -10,7 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_21_035339) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_21_132518) do
+  create_table "match_achievements", force: :cascade do |t|
+    t.integer "match_id", null: false
+    t.integer "tournament_achievement_id", null: false
+    t.integer "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["match_id"], name: "index_match_achievements_on_match_id"
+    t.index ["tournament_achievement_id"], name: "index_match_achievements_on_tournament_achievement_id"
+    t.index ["user_id"], name: "index_match_achievements_on_user_id"
+  end
+
   create_table "match_results", force: :cascade do |t|
     t.integer "user_id", null: false
     t.integer "match_id", null: false
@@ -50,6 +61,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_21_035339) do
     t.index ["user_id"], name: "index_sessions_on_user_id"
   end
 
+  create_table "tournament_achievements", force: :cascade do |t|
+    t.integer "tournament_id", null: false
+    t.string "title", null: false
+    t.text "description"
+    t.integer "points", null: false
+    t.boolean "unique_completion", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["tournament_id"], name: "index_tournament_achievements_on_tournament_id"
+  end
+
   create_table "tournament_organizers", force: :cascade do |t|
     t.integer "tournament_id", null: false
     t.integer "user_id", null: false
@@ -69,6 +91,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_21_035339) do
     t.index ["tournament_id", "user_id"], name: "index_tournament_participants_on_tournament_id_and_user_id", unique: true
     t.index ["tournament_id"], name: "index_tournament_participants_on_tournament_id"
     t.index ["user_id"], name: "index_tournament_participants_on_user_id"
+  end
+
+  create_table "tournament_scorings", force: :cascade do |t|
+    t.integer "tournament_id", null: false
+    t.integer "position", null: false
+    t.integer "points", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["tournament_id"], name: "index_tournament_scorings_on_tournament_id"
   end
 
   create_table "tournaments", force: :cascade do |t|
@@ -91,6 +122,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_21_035339) do
     t.index ["nickname"], name: "index_users_on_nickname", unique: true
   end
 
+  add_foreign_key "match_achievements", "matches"
+  add_foreign_key "match_achievements", "tournament_achievements"
+  add_foreign_key "match_achievements", "users"
   add_foreign_key "match_results", "matches"
   add_foreign_key "match_results", "tournaments"
   add_foreign_key "match_results", "users"
@@ -98,9 +132,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_21_035339) do
   add_foreign_key "matches", "users", column: "created_by_id"
   add_foreign_key "matches", "users", column: "winner_id"
   add_foreign_key "sessions", "users"
+  add_foreign_key "tournament_achievements", "tournaments"
   add_foreign_key "tournament_organizers", "tournaments"
   add_foreign_key "tournament_organizers", "users"
   add_foreign_key "tournament_participants", "tournaments"
   add_foreign_key "tournament_participants", "users"
+  add_foreign_key "tournament_scorings", "tournaments"
   add_foreign_key "tournaments", "users", column: "owner_id"
 end

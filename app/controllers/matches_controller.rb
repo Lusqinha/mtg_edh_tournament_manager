@@ -44,36 +44,81 @@ class MatchesController < ApplicationController
         result.as_json(only: [ :id, :score, :position, :user_id ]).merge(
           user: { id: result.user.id, nickname: result.user.nickname }
         )
+      end,
+      match_achievements: @match.match_achievements.map do |ma|
+        {
+          id: ma.id,
+          user_id: ma.user_id,
+          tournament_achievement_id: ma.tournament_achievement_id
+        }
       end
     )
+
+    achievements = @tournament.tournament_achievements.select(:id, :title, :description, :points, :unique_completion)
+    scorings = @tournament.tournament_scorings.select(:position, :points)
+
     render inertia: "Matches/Edit", props: {
       tournament: @tournament,
-      match: match_data
+      match: match_data,
+      achievements: achievements,
+      scorings: scorings
     }
   end
 
   def update
-    # Calcular duração se a partida estiver sendo finalizada agora
-    if @match.duration.nil? && @match.played_at
-      @match.duration = (Time.current - @match.played_at).to_i
-    end
+    ActiveRecord::Base.transaction do
+      # Update match details
+      @match.update!(
+        duration: params[:duration],
+        winner_id: params[:winner_id]
+      )
 
-    if @match.update(match_params)
-      redirect_to @tournament, notice: "Partida finalizada com sucesso!"
-    else
-      match_data = @match.as_json(only: [ :id, :played_at, :duration ]).merge(
-        match_results: @match.match_results.includes(:user).map do |result|
-          result.as_json(only: [ :id, :score, :position, :user_id ]).merge(
-            user: { id: result.user.id, nickname: result.user.nickname }
+      # Update results and calculate scores
+      params[:match_results].each do |result_data|
+        result = @match.match_results.find(result_data[:id])
+        
+        # Calculate score based on position
+        position_points = @tournament.tournament_scorings.find_by(position: result_data[:position])&.points || 0
+        
+        # Calculate score based on achievements
+        achievement_points = 0
+        if params[:match_achievements]
+          user_achievements = params[:match_achievements].select { |ma| ma[:user_id] == result.user_id }
+          user_achievements.each do |ua|
+            achievement = @tournament.tournament_achievements.find(ua[:tournament_achievement_id])
+            achievement_points += achievement.points
+          end
+        end
+
+        total_score = position_points + achievement_points
+
+        result.update!(
+          position: result_data[:position],
+          score: total_score
+        )
+      end
+
+      # Update achievements
+      @match.match_achievements.destroy_all
+      if params[:match_achievements]
+        params[:match_achievements].each do |ma|
+          @match.match_achievements.create!(
+            user_id: ma[:user_id],
+            tournament_achievement_id: ma[:tournament_achievement_id]
           )
         end
-      )
-      render inertia: "Matches/Edit", props: {
-        tournament: @tournament,
-        match: match_data,
-        errors: @match.errors
-      }
+      end
+
+      # Update tournament participants scores
+      @tournament.tournament_participants.each do |participant|
+        total_score = @tournament.match_results.where(user_id: participant.user_id).sum(:score)
+        participant.update!(score: total_score)
+      end
     end
+
+    redirect_to @tournament, notice: "Partida finalizada com sucesso!"
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_to edit_tournament_match_path(@tournament, @match), alert: "Erro ao salvar partida: #{e.message}"
   end
 
   def show

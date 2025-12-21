@@ -42,7 +42,12 @@ class TournamentsController < ApplicationController
   end
 
   def new
-    render inertia: "Tournaments/New", props: { tournament: Tournament.new }
+    render inertia: "Tournaments/New", props: { 
+      tournament: Tournament.new(
+        tournament_scorings: [],
+        tournament_achievements: []
+      ) 
+    }
   end
 
   def create
@@ -60,6 +65,10 @@ class TournamentsController < ApplicationController
   private
 
   def tournament_params
-    params.require(:tournament).permit(:name, :number_of_rounds, :max_players)
+    params.require(:tournament).permit(
+      :name, :number_of_rounds, :max_players,
+      tournament_scorings_attributes: [:id, :position, :points, :_destroy],
+      tournament_achievements_attributes: [:id, :title, :description, :points, :unique_completion, :_destroy]
+    )
   end
 end
