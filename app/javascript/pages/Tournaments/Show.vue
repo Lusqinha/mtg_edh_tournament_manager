@@ -50,7 +50,7 @@ const formatDate = (dateString) => {
         </div>
       </div>
 
-      <div v-if="tournament.is_organizer" class="flex gap-3 mb-8 overflow-x-auto pb-2">
+      <div v-if="tournament.is_organizer" class="flex gap-3 mb-8 overflow-x-auto pb-2 custom-scrollbar">
         <Link :href="`/tournaments/${tournament.id}/matches/new`" class="flex items-center gap-2 px-4 py-2 rounded-md bg-theme-primary text-white font-medium text-sm hover:bg-github-btn-primary-hover transition-colors whitespace-nowrap border border-[rgba(240,246,252,0.1)] shadow-sm">
           <Icon icon="mdi:sword-cross" class="w-4 h-4" />
           Iniciar Partida
@@ -119,7 +119,7 @@ const formatDate = (dateString) => {
         <!-- Standings Tab -->
         <div v-if="activeTab === 'standings'" class="space-y-4">
           <div class="bg-theme-surface rounded-md border border-theme-border overflow-hidden">
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto custom-scrollbar">
               <table class="w-full text-sm text-left">
                 <thead class="text-xs text-theme-muted uppercase bg-theme-base border-b border-theme-border">
                   <tr>
@@ -186,25 +186,27 @@ const formatDate = (dateString) => {
               Pontuação por Posição
             </h3>
             <div class="bg-theme-surface rounded-md border border-theme-border overflow-hidden">
-              <table class="w-full text-sm text-left">
-                <thead class="text-xs text-theme-muted uppercase bg-theme-base border-b border-theme-border">
-                  <tr>
-                    <th class="px-4 py-2 font-medium">Posição</th>
-                    <th class="px-4 py-2 font-medium text-right">Pontos</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="scoring in tournament.scorings" :key="scoring.position" class="border-b border-theme-border last:border-0">
-                    <td class="px-4 py-2 text-theme-text">{{ scoring.position }}º Lugar</td>
-                    <td class="px-4 py-2 text-right font-medium text-theme-secondary">{{ scoring.points > 0 ? '+' : '' }}{{ scoring.points }}</td>
-                  </tr>
-                  <tr v-if="!tournament.scorings || tournament.scorings.length === 0">
-                    <td colspan="2" class="px-4 py-4 text-center text-theme-muted italic">
-                      Nenhuma regra de pontuação definida.
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+              <div class="overflow-x-auto custom-scrollbar">
+                <table class="w-full text-sm text-left">
+                  <thead class="text-xs text-theme-muted uppercase bg-theme-base border-b border-theme-border">
+                    <tr>
+                      <th class="px-4 py-2 font-medium">Posição</th>
+                      <th class="px-4 py-2 font-medium text-right">Pontos</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="scoring in tournament.scorings" :key="scoring.position" class="border-b border-theme-border last:border-0">
+                      <td class="px-4 py-2 text-theme-text">{{ scoring.position }}º Lugar</td>
+                      <td class="px-4 py-2 text-right font-medium text-theme-secondary">{{ scoring.points > 0 ? '+' : '' }}{{ scoring.points }}</td>
+                    </tr>
+                    <tr v-if="!tournament.scorings || tournament.scorings.length === 0">
+                      <td colspan="2" class="px-4 py-4 text-center text-theme-muted italic">
+                        Nenhuma regra de pontuação definida.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
 
@@ -241,3 +243,31 @@ const formatDate = (dateString) => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.custom-scrollbar::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #161b22; /* theme-surface */
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #30363d; /* theme-border */
+  border-radius: 4px;
+  border: 2px solid #161b22; /* theme-surface to create padding effect */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #8b949e; /* theme-muted */
+}
+
+/* Firefox */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #30363d #161b22;
+}
+</style>
