@@ -11,6 +11,9 @@
 # It's strongly recommended that you check this file into your version control system.
 
 ActiveRecord::Schema[8.0].define(version: 2025_12_21_132518) do
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "pg_catalog.plpgsql"
+
   create_table "match_achievements", force: :cascade do |t|
     t.integer "match_id", null: false
     t.integer "tournament_achievement_id", null: false
