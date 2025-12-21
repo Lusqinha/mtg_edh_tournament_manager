@@ -14,9 +14,10 @@ test:
 production:
   primary: &primary_production
     <<: *default
-    database: liga_mesao_production
-    username: liga_mesao
-    password: <%= ENV["LIGA_MESAO_DATABASE_PASSWORD"] %>
+    database: <%= ENV.fetch("POSTGRES_DB") { "liga_mesao_production" } %>
+    username: <%= ENV.fetch("POSTGRES_USER") { "liga_mesao" } %>
+    password: <%= ENV["POSTGRES_PASSWORD"] %>
+    host: <%= ENV.fetch("POSTGRES_HOST") { "localhost" } %>
   cache:
     <<: *primary_production
     database: liga_mesao_production_cache
