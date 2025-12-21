@@ -1,10 +1,11 @@
 Rails.application.routes.draw do
   root "home#index"
-  
+
   resource :registration, only: %i[ new create ]
   resource :session
   resources :passwords, param: :token
-  
+  resources :users, only: %i[ show ]
+
   resources :tournaments do
     resources :matches, only: %i[ new create edit update show ]
     resources :participants, only: %i[ create destroy ], controller: "tournament_participants"

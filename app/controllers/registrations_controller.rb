@@ -2,7 +2,7 @@ class RegistrationsController < ApplicationController
   allow_unauthenticated_access only: %i[ new create ]
 
   def new
-    @user = User.new
+    render inertia: "Registrations/New", props: { user: User.new }
   end
 
   def create
@@ -11,13 +11,13 @@ class RegistrationsController < ApplicationController
       start_new_session_for @user
       redirect_to root_path, notice: t("registrations.create.success")
     else
-      render :new, status: :unprocessable_entity
+      render inertia: "Registrations/New", props: { user: @user, errors: @user.errors }
     end
   end
 
   private
 
   def user_params
-    params.require(:user).permit(:email_address, :password, :password_confirmation, :nickname)
+    params.permit(:email_address, :password, :password_confirmation, :nickname)
   end
 end

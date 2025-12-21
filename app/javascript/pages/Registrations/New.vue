@@ -1,5 +1,7 @@
 <script setup>
 import { useForm, Link } from '@inertiajs/vue3'
+import { Icon } from '@iconify/vue'
+import logoWhite from '../../../assets/images/logo_white.png'
 
 const form = useForm({
   email_address: '',
@@ -17,6 +19,7 @@ const submit = () => {
   <div class="flex flex-col items-center justify-center min-h-[80vh]">
     <div class="w-full max-w-md p-8 rounded-3xl bg-[#393E46] border border-[#EEEEEE]/10 shadow-2xl">
       <div class="text-center mb-8">
+        <img :src="logoWhite" alt="Liga Mesão" class="h-16 w-auto mx-auto mb-4" />
         <h1 class="text-3xl font-bold text-[#00ADB5]">Criar Conta</h1>
         <p class="text-[#EEEEEE]/60 mt-2 text-sm">Junte-se à liga e domine o mesão!</p>
       </div>
@@ -31,23 +34,43 @@ const submit = () => {
 
         <div class="space-y-2">
           <label for="email_address" class="text-sm font-medium text-[#EEEEEE]/80 ml-1">Email</label>
-          <input id="email_address" v-model="form.email_address" type="email" required autofocus class="w-full px-4 py-3 rounded-xl bg-[#222831] border border-transparent focus:border-[#00ADB5] focus:bg-[#222831] focus:ring-0 text-[#EEEEEE] placeholder-[#EEEEEE]/40 transition-all outline-none" />
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <Icon icon="mdi:email" class="h-5 w-5 text-[#EEEEEE]/40" />
+            </div>
+            <input id="email_address" v-model="form.email_address" type="email" required autofocus class="w-full pl-11 pr-4 py-3 rounded-xl bg-[#222831] border border-transparent focus:border-[#00ADB5] focus:bg-[#222831] focus:ring-0 text-[#EEEEEE] placeholder-[#EEEEEE]/40 transition-all outline-none" />
+          </div>
         </div>
 
         <div class="space-y-2">
           <label for="nickname" class="text-sm font-medium text-[#EEEEEE]/80 ml-1">Apelido</label>
-          <input id="nickname" v-model="form.nickname" type="text" required class="w-full px-4 py-3 rounded-xl bg-[#222831] border border-transparent focus:border-[#00ADB5] focus:bg-[#222831] focus:ring-0 text-[#EEEEEE] placeholder-[#EEEEEE]/40 transition-all outline-none" />
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <Icon icon="mdi:account" class="h-5 w-5 text-[#EEEEEE]/40" />
+            </div>
+            <input id="nickname" v-model="form.nickname" type="text" required class="w-full pl-11 pr-4 py-3 rounded-xl bg-[#222831] border border-transparent focus:border-[#00ADB5] focus:bg-[#222831] focus:ring-0 text-[#EEEEEE] placeholder-[#EEEEEE]/40 transition-all outline-none" />
+          </div>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
           <div class="space-y-2">
             <label for="password" class="text-sm font-medium text-[#EEEEEE]/80 ml-1">Senha</label>
-            <input id="password" v-model="form.password" type="password" required minlength="8" class="w-full px-4 py-3 rounded-xl bg-[#222831] border border-transparent focus:border-[#00ADB5] focus:bg-[#222831] focus:ring-0 text-[#EEEEEE] placeholder-[#EEEEEE]/40 transition-all outline-none" />
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <Icon icon="mdi:lock" class="h-5 w-5 text-[#EEEEEE]/40" />
+              </div>
+              <input id="password" v-model="form.password" type="password" required minlength="8" class="w-full pl-11 pr-4 py-3 rounded-xl bg-[#222831] border border-transparent focus:border-[#00ADB5] focus:bg-[#222831] focus:ring-0 text-[#EEEEEE] placeholder-[#EEEEEE]/40 transition-all outline-none" />
+            </div>
           </div>
 
           <div class="space-y-2">
             <label for="password_confirmation" class="text-sm font-medium text-[#EEEEEE]/80 ml-1">Confirmar</label>
-            <input id="password_confirmation" v-model="form.password_confirmation" type="password" required minlength="8" class="w-full px-4 py-3 rounded-xl bg-[#222831] border border-transparent focus:border-[#00ADB5] focus:bg-[#222831] focus:ring-0 text-[#EEEEEE] placeholder-[#EEEEEE]/40 transition-all outline-none" />
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <Icon icon="mdi:lock-check" class="h-5 w-5 text-[#EEEEEE]/40" />
+              </div>
+              <input id="password_confirmation" v-model="form.password_confirmation" type="password" required minlength="8" class="w-full pl-11 pr-4 py-3 rounded-xl bg-[#222831] border border-transparent focus:border-[#00ADB5] focus:bg-[#222831] focus:ring-0 text-[#EEEEEE] placeholder-[#EEEEEE]/40 transition-all outline-none" />
+            </div>
           </div>
         </div>
 

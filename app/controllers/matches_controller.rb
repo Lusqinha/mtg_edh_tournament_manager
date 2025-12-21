@@ -4,7 +4,11 @@ class MatchesController < ApplicationController
 
   def new
     @match = @tournament.matches.build
-    @participants = @tournament.users
+    participants = @tournament.users.select(:id, :nickname)
+    render inertia: "Matches/New", props: {
+      tournament: @tournament,
+      participants: participants
+    }
   end
 
   def create
@@ -25,11 +29,27 @@ class MatchesController < ApplicationController
       end
       redirect_to edit_tournament_match_path(@tournament, @match), notice: "Partida iniciada!"
     else
-      render :new, status: :unprocessable_entity
+      participants = @tournament.users.select(:id, :nickname)
+      render inertia: "Matches/New", props: {
+        tournament: @tournament,
+        participants: participants,
+        errors: @match.errors
+      }
     end
   end
 
   def edit
+    match_data = @match.as_json(only: [ :id, :played_at, :duration ]).merge(
+      match_results: @match.match_results.includes(:user).map do |result|
+        result.as_json(only: [ :id, :score, :position, :user_id ]).merge(
+          user: { id: result.user.id, nickname: result.user.nickname }
+        )
+      end
+    )
+    render inertia: "Matches/Edit", props: {
+      tournament: @tournament,
+      match: match_data
+    }
   end
 
   def update
@@ -41,7 +61,18 @@ class MatchesController < ApplicationController
     if @match.update(match_params)
       redirect_to @tournament, notice: "Partida finalizada com sucesso!"
     else
-      render :edit, status: :unprocessable_entity
+      match_data = @match.as_json(only: [ :id, :played_at, :duration ]).merge(
+        match_results: @match.match_results.includes(:user).map do |result|
+          result.as_json(only: [ :id, :score, :position, :user_id ]).merge(
+            user: { id: result.user.id, nickname: result.user.nickname }
+          )
+        end
+      )
+      render inertia: "Matches/Edit", props: {
+        tournament: @tournament,
+        match: match_data,
+        errors: @match.errors
+      }
     end
   end
 
@@ -59,6 +90,6 @@ class MatchesController < ApplicationController
   end
 
   def match_params
-    params.require(:match).permit(:winner_id, match_results_attributes: [:id, :score, :eliminations, :commander_damage, :final_life])
+    params.require(:match).permit(:winner_id, match_results_attributes: [ :id, :score, :eliminations, :commander_damage, :final_life ])
   end
 end

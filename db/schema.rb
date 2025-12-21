@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_20_131138) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_21_035339) do
   create_table "match_results", force: :cascade do |t|
     t.integer "user_id", null: false
     t.integer "match_id", null: false
@@ -21,6 +21,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_20_131138) do
     t.integer "final_life"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "position"
     t.index ["match_id"], name: "index_match_results_on_match_id"
     t.index ["tournament_id"], name: "index_match_results_on_tournament_id"
     t.index ["user_id"], name: "index_match_results_on_user_id"
@@ -34,7 +35,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_20_131138) do
     t.integer "round"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "created_by_id", null: false
+    t.integer "created_by_id"
     t.index ["created_by_id"], name: "index_matches_on_created_by_id"
     t.index ["tournament_id"], name: "index_matches_on_tournament_id"
     t.index ["winner_id"], name: "index_matches_on_winner_id"
@@ -54,7 +55,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_20_131138) do
     t.integer "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["tournament_id", "user_id"], name: "index_tournament_organizers_on_tournament_id_and_user_id", unique: true
     t.index ["tournament_id"], name: "index_tournament_organizers_on_tournament_id"
     t.index ["user_id"], name: "index_tournament_organizers_on_user_id"
   end
@@ -77,8 +77,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_20_131138) do
     t.integer "max_players"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "created_by_id", null: false
-    t.index ["created_by_id"], name: "index_tournaments_on_created_by_id"
+    t.integer "owner_id", null: false
+    t.index ["owner_id"], name: "index_tournaments_on_owner_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -102,5 +102,5 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_20_131138) do
   add_foreign_key "tournament_organizers", "users"
   add_foreign_key "tournament_participants", "tournaments"
   add_foreign_key "tournament_participants", "users"
-  add_foreign_key "tournaments", "users", column: "created_by_id"
+  add_foreign_key "tournaments", "users", column: "owner_id"
 end

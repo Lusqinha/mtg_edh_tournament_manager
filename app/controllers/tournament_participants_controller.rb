@@ -3,7 +3,7 @@ class TournamentParticipantsController < ApplicationController
 
   def create
     @participant = @tournament.tournament_participants.build(user_id: params[:user_id])
-    
+
     if @participant.save
       redirect_to @tournament, notice: "Jogador adicionado com sucesso."
     else
