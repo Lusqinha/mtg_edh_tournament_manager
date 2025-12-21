@@ -13,4 +13,8 @@ class ApplicationController < ActionController::Base
   inertia_share flash: -> {
     flash.to_hash
   }
+
+  inertia_share organized_tournaments: -> {
+    Current.user&.organized_tournaments&.select(:id, :name)&.order(created_at: :desc) || []
+  }
 end

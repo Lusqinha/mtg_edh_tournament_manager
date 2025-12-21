@@ -1,6 +1,13 @@
 class MatchesController < ApplicationController
-  before_action :set_tournament
+  before_action :set_tournament, except: [:select_tournament]
   before_action :set_match, only: %i[ edit update show ]
+
+  def select_tournament
+    @tournaments = Current.user.organized_tournaments.order(created_at: :desc)
+    render inertia: "Matches/SelectTournament", props: {
+      tournaments: @tournaments
+    }
+  end
 
   def new
     @match = @tournament.matches.build

@@ -12,13 +12,22 @@ const props = defineProps({
 })
 
 const page = usePage()
-const isCurrentUser = computed(() => page.props.auth.user && page.props.auth.user.id === props.profile_user.id)
+const isCurrentUser = computed(() => {
+  const authUser = page.props.auth.user
+  return authUser && String(authUser.id) === String(props.profile_user.id)
+})
 
 const showPasswordModal = ref(false)
+const showProfileModal = ref(false)
+
 const passwordForm = useForm({
   current_password: '',
   password: '',
   password_confirmation: ''
+})
+
+const profileForm = useForm({
+  nickname: props.profile_user.nickname
 })
 
 const submitPasswordChange = () => {
@@ -26,6 +35,14 @@ const submitPasswordChange = () => {
     onSuccess: () => {
       showPasswordModal.value = false
       passwordForm.reset()
+    }
+  })
+}
+
+const submitProfileChange = () => {
+  profileForm.put('/profile', {
+    onSuccess: () => {
+      showProfileModal.value = false
     }
   })
 }
@@ -42,7 +59,7 @@ const formatDateTime = (date) => {
 <template>
   <div class="max-w-3xl mx-auto px-4 py-8">
     <!-- Profile Header -->
-    <div class="mb-8 flex items-center justify-between">
+    <div class="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
       <div class="flex items-center gap-4">
         <div class="w-16 h-16 rounded-full bg-theme-surface border border-theme-border flex items-center justify-center text-theme-muted">
           <Icon icon="mdi:account" class="w-8 h-8" />
@@ -53,10 +70,44 @@ const formatDateTime = (date) => {
         </div>
       </div>
 
-      <button v-if="isCurrentUser" @click="showPasswordModal = true" class="flex items-center gap-2 px-4 py-2 rounded-md bg-github-btn-bg text-theme-text font-medium text-sm hover:bg-github-btn-hover transition-colors border border-theme-border">
-        <Icon icon="mdi:lock-reset" class="w-4 h-4" />
-        Alterar Senha
-      </button>
+      <div v-if="isCurrentUser" class="flex flex-wrap gap-2 w-full sm:w-auto">
+        <button @click="showProfileModal = true" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-github-btn-bg text-theme-text font-medium text-sm hover:bg-github-btn-hover transition-colors border border-theme-border">
+          <Icon icon="mdi:pencil" class="w-4 h-4" />
+          Editar Perfil
+        </button>
+        <button @click="showPasswordModal = true" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-github-btn-bg text-theme-text font-medium text-sm hover:bg-github-btn-hover transition-colors border border-theme-border">
+          <Icon icon="mdi:lock-reset" class="w-4 h-4" />
+          Alterar Senha
+        </button>
+        <Link href="/session" method="delete" as="button" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-red-500/10 text-red-400 font-medium text-sm hover:bg-red-500/20 transition-colors border border-red-500/20">
+          <Icon icon="mdi:logout" class="w-4 h-4" />
+          Sair
+        </Link>
+      </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div v-if="showProfileModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-theme-base/80 backdrop-blur-sm">
+      <div class="bg-theme-surface rounded-md border border-theme-border shadow-xl w-full max-w-md p-6">
+        <h3 class="text-lg font-semibold text-theme-text mb-4">Editar Perfil</h3>
+        
+        <form @submit.prevent="submitProfileChange" class="space-y-4">
+          <div class="space-y-2">
+            <label for="nickname" class="text-sm font-semibold text-theme-text">Nickname</label>
+            <input v-model="profileForm.nickname" type="text" id="nickname" class="w-full px-3 py-2 rounded-md bg-theme-base border border-theme-border focus:border-theme-secondary focus:ring-1 focus:ring-theme-secondary text-theme-text outline-none text-sm" required />
+            <div v-if="profileForm.errors.nickname" class="text-[#ff7b72] text-xs">{{ profileForm.errors.nickname }}</div>
+          </div>
+
+          <div class="flex gap-3 pt-2">
+            <button type="submit" :disabled="profileForm.processing" class="flex-1 py-2 rounded-md bg-theme-primary text-white font-medium hover:bg-github-btn-primary-hover transition-colors cursor-pointer disabled:opacity-50 border border-[rgba(240,246,252,0.1)] shadow-sm text-sm">
+              {{ profileForm.processing ? 'Salvando...' : 'Salvar' }}
+            </button>
+            <button type="button" @click="showProfileModal = false" class="px-4 py-2 rounded-md bg-github-btn-bg text-theme-text font-medium hover:bg-github-btn-hover transition-colors border border-theme-border text-sm">
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <!-- Password Modal -->
