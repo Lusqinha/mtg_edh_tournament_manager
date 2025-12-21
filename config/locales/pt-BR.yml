@@ -1,0 +1,67 @@
+pt-BR:
+  activerecord:
+    attributes:
+      user:
+        email_address: "Endereço de Email"
+        nickname: "Apelido"
+        password: "Senha"
+        password_confirmation: "Confirmação de Senha"
+    errors:
+      messages:
+        record_invalid: "A validação falhou: %{errors}"
+        restrict_dependent_destroy:
+          has_one: "Não é possível excluir o registro pois existe um %{record} dependente"
+          has_many: "Não é possível excluir o registro pois existem %{record} dependentes"
+  
+  sessions:
+    new:
+      title: "Entrar"
+      email_or_nickname_placeholder: "Digite seu email ou apelido"
+      password_placeholder: "Digite sua senha"
+      submit: "Entrar"
+      forgot_password: "Esqueceu a senha?"
+      sign_up: "Cadastrar-se"
+    create:
+      alert: "Tente outro email, apelido ou senha."
+      rate_limit: "Tente novamente mais tarde."
+  
+  registrations:
+    new:
+      title: "Cadastrar-se"
+      submit: "Cadastrar-se"
+      sign_in: "Entrar"
+      errors_title: "%{count} erro(s) impediram que este usuário fosse salvo:"
+    create:
+      success: "Cadastro realizado com sucesso!"
+  
+  passwords:
+    new:
+      title: "Esqueceu sua senha?"
+      email_placeholder: "Digite seu endereço de email"
+      submit: "Enviar instruções de redefinição"
+    edit:
+      title: "Atualize sua senha"
+      password_placeholder: "Digite a nova senha"
+      password_confirmation_placeholder: "Repita a nova senha"
+      submit: "Salvar"
+    create:
+      notice: "Instruções de redefinição de senha enviadas (se o usuário com esse endereço de email existir)."
+    update:
+      success: "A senha foi redefinida."
+      mismatch: "As senhas não coincidem."
+    invalid_token: "O link de redefinição de senha é inválido ou expirou."
+
+  home:
+    index:
+      welcome: "Bem-vindo à Liga Mesão"
+      logged_in_as: "Você está logado como:"
+      sign_out: "Sair"
+      stimulus_text: "Este texto será substituído pelo Stimulus"
+
+  passwords_mailer:
+    reset:
+      subject: "Redefina sua senha"
+      html_body: "Você pode redefinir sua senha nos próximos 15 minutos nesta"
+      link_text: "página de redefinição de senha"
+      text_body: "Você pode redefinir sua senha nos próximos 15 minutos nesta página de redefinição de senha:"
+
