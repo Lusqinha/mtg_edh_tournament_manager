@@ -1,4 +1,4 @@
-module Match
+module Matches
   class Finalize
     attr_reader :match, :params, :errors
 

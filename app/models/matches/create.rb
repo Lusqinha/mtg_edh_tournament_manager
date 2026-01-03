@@ -1,4 +1,4 @@
-module Match
+module Matches
   class Create
     attr_reader :tournament, :params, :match, :errors
 

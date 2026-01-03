@@ -20,7 +20,7 @@ class MatchesController < ApplicationController
   end
 
   def create
-    service = Match::Create.new(@tournament, match_creation_params)
+    service = Matches::Create.new(@tournament, match_creation_params)
 
     if service.call
       notice = past_match? ? t("matches.create.success_past") : t("matches.create.success_live")
@@ -45,7 +45,7 @@ class MatchesController < ApplicationController
   end
 
   def update
-    service = Match::Finalize.new(@match, match_finalization_params)
+    service = Matches::Finalize.new(@match, match_finalization_params)
 
     if service.call
       redirect_to @tournament, notice: t("matches.update.success")
