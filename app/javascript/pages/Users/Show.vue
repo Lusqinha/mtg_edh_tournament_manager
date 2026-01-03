@@ -3,7 +3,7 @@ import { Link, usePage, useForm } from '@inertiajs/vue3'
 import { Icon } from '@iconify/vue'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 
 const props = defineProps({
   profile_user: Object,
@@ -14,11 +14,12 @@ const props = defineProps({
 const page = usePage()
 const isCurrentUser = computed(() => {
   const authUser = page.props.auth.user
-  return authUser && String(authUser.id) === String(props.profile_user.id)
+  return authUser && authUser.uuid === props.profile_user.uuid
 })
 
 const showPasswordModal = ref(false)
 const showProfileModal = ref(false)
+const showAvatarModal = ref(false)
 
 const passwordForm = useForm({
   current_password: '',
@@ -29,6 +30,72 @@ const passwordForm = useForm({
 const profileForm = useForm({
   nickname: props.profile_user.nickname
 })
+
+const avatarForm = useForm({
+  avatar_url: props.profile_user.avatar_url || ''
+})
+
+// DiceBear configuration
+const dicebearStyles = [
+  { id: 'adventurer', name: 'Aventureiro', icon: 'mdi:account-cowboy-hat' },
+  { id: 'avataaars', name: 'Avataaars', icon: 'mdi:account-circle' },
+  { id: 'bottts', name: 'Robôs', icon: 'mdi:robot' },
+  { id: 'lorelei', name: 'Lorelei', icon: 'mdi:face-woman' },
+  { id: 'micah', name: 'Micah', icon: 'mdi:face-man' },
+  { id: 'notionists', name: 'Notionists', icon: 'mdi:account-edit' },
+  { id: 'pixel-art', name: 'Pixel Art', icon: 'mdi:image-filter-vintage' },
+  { id: 'thumbs', name: 'Polegares', icon: 'mdi:thumb-up' }
+]
+
+const selectedStyle = ref('adventurer')
+const avatarSeeds = ref([])
+const selectedAvatarUrl = ref('')
+const isGenerating = ref(false)
+
+// Generate random seeds for avatars
+const generateRandomSeeds = () => {
+  isGenerating.value = true
+  const seeds = []
+  for (let i = 0; i < 4; i++) {
+    seeds.push(Math.random().toString(36).substring(2, 10))
+  }
+  avatarSeeds.value = seeds
+  selectedAvatarUrl.value = ''
+  // Small delay for visual feedback
+  setTimeout(() => {
+    isGenerating.value = false
+  }, 300)
+}
+
+// Generate DiceBear URL
+const getDicebearUrl = (style, seed) => {
+  return `https://api.dicebear.com/9.x/${style}/svg?seed=${seed}`
+}
+
+// Watch style changes to regenerate avatars
+watch(selectedStyle, () => {
+  generateRandomSeeds()
+})
+
+// Initialize avatars when modal opens
+const openAvatarModal = () => {
+  showAvatarModal.value = true
+  generateRandomSeeds()
+}
+
+const selectAvatar = (url) => {
+  selectedAvatarUrl.value = url
+}
+
+const submitAvatarChange = () => {
+  avatarForm.avatar_url = selectedAvatarUrl.value
+  avatarForm.put('/profile', {
+    onSuccess: () => {
+      showAvatarModal.value = false
+      props.profile_user.avatar_url = selectedAvatarUrl.value
+    }
+  })
+}
 
 const submitPasswordChange = () => {
   passwordForm.put('/profile', {
@@ -54,6 +121,9 @@ const formatDate = (date) => {
 const formatDateTime = (date) => {
   return format(new Date(date), "d 'de' MMM, HH:mm", { locale: ptBR })
 }
+
+// Current avatar URL (fallback to default icon)
+const currentAvatarUrl = computed(() => props.profile_user.avatar_url)
 </script>
 
 <template>
@@ -61,8 +131,18 @@ const formatDateTime = (date) => {
     <!-- Profile Header -->
     <div class="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
       <div class="flex items-center gap-4">
-        <div class="w-16 h-16 rounded-full bg-theme-surface border border-theme-border flex items-center justify-center text-theme-muted">
-          <Icon icon="mdi:account" class="w-8 h-8" />
+        <div class="relative group">
+          <div class="w-16 h-16 rounded-full bg-theme-surface border border-theme-border flex items-center justify-center text-theme-muted overflow-hidden">
+            <img v-if="currentAvatarUrl" :src="currentAvatarUrl" alt="Avatar" class="w-full h-full object-cover" />
+            <Icon v-else icon="mdi:account" class="w-8 h-8" />
+          </div>
+          <button 
+            v-if="isCurrentUser" 
+            @click="openAvatarModal"
+            class="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+          >
+            <Icon icon="mdi:camera" class="w-5 h-5 text-white" />
+          </button>
         </div>
         <div>
           <h1 class="text-2xl font-bold text-theme-text">{{ profile_user.nickname }}</h1>
@@ -83,6 +163,102 @@ const formatDateTime = (date) => {
           <Icon icon="mdi:logout" class="w-4 h-4" />
           Sair
         </Link>
+      </div>
+    </div>
+
+    <!-- Avatar Modal -->
+    <div v-if="showAvatarModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-theme-base/80 backdrop-blur-sm">
+      <div class="bg-theme-surface rounded-md border border-theme-border shadow-xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold text-theme-text">Escolher Avatar</h3>
+          <button @click="showAvatarModal = false" class="text-theme-muted hover:text-theme-text transition-colors">
+            <Icon icon="mdi:close" class="w-5 h-5" />
+          </button>
+        </div>
+        
+        <!-- Style Selector -->
+        <div class="mb-6">
+          <label class="text-sm font-medium text-theme-muted mb-2 block">Estilo</label>
+          <div class="grid grid-cols-4 gap-2">
+            <button 
+              v-for="style in dicebearStyles" 
+              :key="style.id"
+              @click="selectedStyle = style.id"
+              :class="[
+                'flex flex-col items-center gap-1 p-2 rounded-md border transition-all text-xs',
+                selectedStyle === style.id 
+                  ? 'bg-theme-primary/10 border-theme-primary text-theme-primary' 
+                  : 'bg-theme-base border-theme-border text-theme-muted hover:border-theme-muted'
+              ]"
+            >
+              <Icon :icon="style.icon" class="w-5 h-5" />
+              <span class="truncate w-full text-center">{{ style.name }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Avatar Options -->
+        <div class="mb-4">
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-sm font-medium text-theme-muted">Escolha um avatar</label>
+            <button 
+              @click="generateRandomSeeds"
+              :disabled="isGenerating"
+              class="flex items-center gap-1 text-xs text-theme-secondary hover:text-theme-secondary/80 transition-colors disabled:opacity-50"
+            >
+              <Icon icon="mdi:refresh" :class="['w-4 h-4', isGenerating ? 'animate-spin' : '']" />
+              Gerar novos
+            </button>
+          </div>
+          
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <button 
+              v-for="seed in avatarSeeds" 
+              :key="seed"
+              @click="selectAvatar(getDicebearUrl(selectedStyle, seed))"
+              :class="[
+                'aspect-square rounded-lg border-2 overflow-hidden transition-all p-2 bg-theme-base',
+                selectedAvatarUrl === getDicebearUrl(selectedStyle, seed)
+                  ? 'border-theme-primary ring-2 ring-theme-primary/30 scale-105'
+                  : 'border-theme-border hover:border-theme-muted'
+              ]"
+            >
+              <img 
+                :src="getDicebearUrl(selectedStyle, seed)" 
+                alt="Avatar option"
+                class="w-full h-full object-contain"
+              />
+            </button>
+          </div>
+        </div>
+
+        <!-- Preview -->
+        <div v-if="selectedAvatarUrl" class="mb-4 p-4 bg-theme-base rounded-md border border-theme-border">
+          <div class="flex items-center gap-4">
+            <div class="w-16 h-16 rounded-full overflow-hidden border-2 border-theme-primary bg-theme-surface p-1">
+              <img :src="selectedAvatarUrl" alt="Preview" class="w-full h-full object-contain" />
+            </div>
+            <div>
+              <p class="text-sm font-medium text-theme-text">Preview</p>
+              <p class="text-xs text-theme-muted">É assim que seu avatar aparecerá</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex gap-3 pt-2">
+          <button 
+            type="button" 
+            @click="submitAvatarChange" 
+            :disabled="avatarForm.processing || !selectedAvatarUrl" 
+            class="flex-1 py-2 rounded-md bg-theme-primary text-white font-medium hover:bg-github-btn-primary-hover transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed border border-[rgba(240,246,252,0.1)] shadow-sm text-sm"
+          >
+            {{ avatarForm.processing ? 'Salvando...' : 'Salvar Avatar' }}
+          </button>
+          <button type="button" @click="showAvatarModal = false" class="px-4 py-2 rounded-md bg-github-btn-bg text-theme-text font-medium hover:bg-github-btn-hover transition-colors border border-theme-border text-sm">
+            Cancelar
+          </button>
+        </div>
       </div>
     </div>
 

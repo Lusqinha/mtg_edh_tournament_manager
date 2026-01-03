@@ -1,5 +1,5 @@
 class SessionsController < ApplicationController
-  allow_unauthenticated_access only: %i[ new create ]
+  allow_unauthenticated_access only: %i[new create]
   rate_limit to: 10, within: 3.minutes, only: :create, with: -> { redirect_to new_session_url, alert: t("sessions.create.rate_limit") }
 
   def new
@@ -7,12 +7,10 @@ class SessionsController < ApplicationController
   end
 
   def create
-    login = params[:login]
-    password = params[:password]
+    user = authenticate_user
 
-    if user = User.authenticate_by(email_address: login, password: password) ||
-              User.authenticate_by(nickname: login, password: password)
-      start_new_session_for user
+    if user
+      start_new_session_for(user)
       redirect_to after_authentication_url
     else
       redirect_to new_session_path, alert: t("sessions.create.alert")
@@ -22,5 +20,15 @@ class SessionsController < ApplicationController
   def destroy
     terminate_session
     redirect_to new_session_path
+  end
+
+  private
+
+  def authenticate_user
+    login = params[:login]
+    password = params[:password]
+
+    User.authenticate_by(email_address: login, password:) ||
+      User.authenticate_by(nickname: login, password:)
   end
 end

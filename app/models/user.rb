@@ -18,4 +18,46 @@ class User < ApplicationRecord
   normalizes :nickname, with: ->(n) { n.strip.downcase }
 
   validates :nickname, presence: true, uniqueness: true
+  validates :uuid, presence: true, uniqueness: true, on: :update
+
+  before_create :generate_uuid
+
+  def profile_data
+    as_json(only: %i[uuid nickname avatar_url created_at])
+  end
+
+  def tournament_stats
+    tournament_participants.includes(tournament: :tournament_participants).order(score: :desc).map do |participation|
+      tournament = participation.tournament
+      higher_scores_count = tournament.tournament_participants.count { |p| p.score > participation.score }
+
+      {
+        id: tournament.id,
+        slug: tournament.slug,
+        name: tournament.name,
+        score: participation.score,
+        rank: higher_scores_count + 1,
+        total_participants: tournament.tournament_participants.size,
+        created_at: tournament.created_at
+      }
+    end
+  end
+
+  def recent_matches_data(limit: 10)
+    matches.includes(:winner, :tournament).order(created_at: :desc).limit(limit).map do |match|
+      {
+        id: match.id,
+        tournament_name: match.tournament.name,
+        winner_nickname: match.winner&.nickname,
+        created_at: match.created_at,
+        is_winner: match.winner_id == id
+      }
+    end
+  end
+
+  private
+
+  def generate_uuid
+    self.uuid ||= SecureRandom.uuid
+  end
 end

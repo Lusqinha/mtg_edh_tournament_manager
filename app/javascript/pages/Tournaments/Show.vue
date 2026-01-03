@@ -1,5 +1,5 @@
 <script setup>
-import { Link } from '@inertiajs/vue3'
+import { Link, router } from '@inertiajs/vue3'
 import { ref } from 'vue'
 import { Icon } from '@iconify/vue'
 import AddPlayerModal from '../../components/Tournament/AddPlayerModal.vue'
@@ -14,6 +14,7 @@ const props = defineProps({
 })
 
 const showAddPlayerModal = ref(false)
+const showMatchTypeModal = ref(false)
 const activeTab = ref('standings') // standings, matches, rules
 
 const copyInviteLink = () => {
@@ -21,6 +22,11 @@ const copyInviteLink = () => {
   navigator.clipboard.writeText(url).then(() => {
     alert('Link de convite copiado para a área de transferência!')
   })
+}
+
+const startMatch = (type) => {
+  showMatchTypeModal.value = false
+  router.visit(`/tournaments/${props.tournament.slug}/matches/new?type=${type}`)
 }
 </script>
 
@@ -38,10 +44,10 @@ const copyInviteLink = () => {
       </div>
 
       <div v-if="tournament.is_organizer || tournament.is_participant" class="flex gap-3 mb-8 overflow-x-auto pb-2 custom-scrollbar">
-        <Link :href="`/tournaments/${tournament.slug}/matches/new`" class="flex items-center gap-2 px-4 py-2 rounded-md bg-theme-primary text-white font-medium text-sm hover:bg-github-btn-primary-hover transition-colors whitespace-nowrap border border-[rgba(240,246,252,0.1)] shadow-sm">
+        <button @click="showMatchTypeModal = true" class="flex items-center gap-2 px-4 py-2 rounded-md bg-theme-primary text-white font-medium text-sm hover:bg-github-btn-primary-hover transition-colors whitespace-nowrap border border-[rgba(240,246,252,0.1)] shadow-sm cursor-pointer">
           <Icon icon="mdi:sword-cross" class="w-4 h-4" />
-          <span class="hidden sm:inline">Iniciar Partida</span>
-        </Link>
+          <span class="hidden sm:inline">Registrar Partida</span>
+        </button>
         
         <button v-if="tournament.is_organizer" @click="showAddPlayerModal = true" class="flex items-center gap-2 px-4 py-2 rounded-md bg-github-btn-bg text-theme-text font-medium text-sm hover:bg-github-btn-hover transition-colors whitespace-nowrap border border-theme-border cursor-pointer">
           <Icon icon="mdi:account-plus" class="w-4 h-4" />
@@ -65,6 +71,59 @@ const copyInviteLink = () => {
         :tournament-slug="tournament.slug"
         @close="showAddPlayerModal = false"
       />
+
+      <!-- Match Type Modal -->
+      <div v-if="showMatchTypeModal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-theme-base/80 backdrop-blur-sm" @click.self="showMatchTypeModal = false">
+        <div class="bg-theme-surface rounded-t-xl sm:rounded-xl border border-theme-border shadow-xl w-full sm:max-w-sm overflow-hidden animate-slide-up sm:animate-none">
+          <div class="p-4 border-b border-theme-border">
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-semibold text-theme-text">Registrar Partida</h3>
+              <button @click="showMatchTypeModal = false" class="p-1 rounded-md hover:bg-github-btn-bg text-theme-muted hover:text-theme-text transition-colors">
+                <Icon icon="mdi:close" class="w-5 h-5" />
+              </button>
+            </div>
+            <p class="text-sm text-theme-muted mt-1">Que tipo de partida você quer registrar?</p>
+          </div>
+          
+          <div class="p-4 space-y-3">
+            <button 
+              @click="startMatch('live')" 
+              class="w-full p-4 rounded-lg bg-theme-base border border-theme-border hover:border-theme-primary hover:bg-theme-primary/5 transition-all text-left group cursor-pointer"
+            >
+              <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-full bg-theme-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-theme-primary/20 transition-colors">
+                  <Icon icon="mdi:play-circle" class="w-5 h-5 text-theme-primary" />
+                </div>
+                <div>
+                  <span class="font-semibold text-theme-text block">Partida ao Vivo</span>
+                  <span class="text-xs text-theme-muted">A partida vai começar agora. O tempo será contabilizado automaticamente.</span>
+                </div>
+              </div>
+            </button>
+            
+            <button 
+              @click="startMatch('past')" 
+              class="w-full p-4 rounded-lg bg-theme-base border border-theme-border hover:border-theme-secondary hover:bg-theme-secondary/5 transition-all text-left group cursor-pointer"
+            >
+              <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-full bg-theme-secondary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-theme-secondary/20 transition-colors">
+                  <Icon icon="mdi:history" class="w-5 h-5 text-theme-secondary" />
+                </div>
+                <div>
+                  <span class="font-semibold text-theme-text block">Partida Passada</span>
+                  <span class="text-xs text-theme-muted">Registrar uma partida que já aconteceu. Você poderá informar a duração manualmente.</span>
+                </div>
+              </div>
+            </button>
+          </div>
+          
+          <div class="p-4 border-t border-theme-border sm:hidden">
+            <button @click="showMatchTypeModal = false" class="w-full py-2.5 rounded-md bg-github-btn-bg text-theme-text font-medium hover:bg-github-btn-hover transition-colors border border-theme-border text-sm">
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </div>
 
       <!-- Tabs -->
       <div class="border-b border-theme-border mb-6 overflow-x-auto overflow-y-hidden custom-scrollbar">
@@ -191,5 +250,20 @@ const copyInviteLink = () => {
 .custom-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: #30363d #161b22;
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.2s ease-out;
 }
 </style>

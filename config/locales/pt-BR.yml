@@ -1,4 +1,9 @@
 pt-BR:
+  app:
+    name: "Liga Mesão"
+    description: "Gerencie torneios de Commander EDH com ranking, partidas e conquistas"
+    keywords: "magic, commander, edh, torneio, liga, mtg, ranking"
+
   activerecord:
     attributes:
       user:
@@ -6,13 +11,51 @@ pt-BR:
         nickname: "Apelido"
         password: "Senha"
         password_confirmation: "Confirmação de Senha"
+      tournament:
+        name: "Nome"
+        number_of_rounds: "Número de Rodadas"
+        max_players: "Máximo de Jogadores"
+      match:
+        round: "Rodada"
+        duration: "Duração"
     errors:
       messages:
         record_invalid: "A validação falhou: %{errors}"
         restrict_dependent_destroy:
           has_one: "Não é possível excluir o registro pois existe um %{record} dependente"
           has_many: "Não é possível excluir o registro pois existem %{record} dependentes"
-  
+
+  # Controllers
+  tournaments:
+    create:
+      success: "Torneio criado com sucesso!"
+    update:
+      success: "Torneio atualizado com sucesso!"
+    unauthorized: "Você não tem permissão para editar este torneio."
+
+  matches:
+    create:
+      success_live: "Partida iniciada!"
+      success_past: "Partida registrada! Preencha os resultados."
+      no_players: "Selecione pelo menos um jogador."
+      invalid_players: "Jogadores inválidos selecionados."
+    update:
+      success: "Partida finalizada com sucesso!"
+      invalid_winner: "Vencedor inválido."
+      error: "Erro ao salvar partida: %{message}"
+    unauthorized: "Você não tem permissão para gerenciar partidas deste torneio."
+
+  participants:
+    create:
+      success: "Jogador adicionado com sucesso."
+      error: "Não foi possível adicionar o jogador."
+      not_found: "Usuário não encontrado."
+      already_participant: "Jogador já é participante do torneio."
+    destroy:
+      success: "Jogador removido."
+    unauthorized: "Você não tem permissão para gerenciar participantes deste torneio."
+
+  # Auth
   sessions:
     new:
       title: "Entrar"
@@ -24,7 +67,7 @@ pt-BR:
     create:
       alert: "Tente outro email, apelido ou senha."
       rate_limit: "Tente novamente mais tarde."
-  
+
   registrations:
     new:
       title: "Cadastrar-se"
@@ -33,7 +76,7 @@ pt-BR:
       errors_title: "%{count} erro(s) impediram que este usuário fosse salvo:"
     create:
       success: "Cadastro realizado com sucesso!"
-  
+
   passwords:
     new:
       title: "Esqueceu sua senha?"
@@ -65,3 +108,15 @@ pt-BR:
       link_text: "página de redefinição de senha"
       text_body: "Você pode redefinir sua senha nos próximos 15 minutos nesta página de redefinição de senha:"
 
+  profiles:
+    update:
+      success: "Perfil atualizado com sucesso."
+      password_success: "Senha atualizada com sucesso."
+      password_incorrect: "Senha atual incorreta."
+      error: "Erro ao atualizar perfil: %{errors}"
+      password_error: "Erro ao atualizar senha: %{errors}"
+
+  invitations:
+    already_participant: "Você já está participando deste torneio."
+    joined: "Você entrou no torneio %{tournament} com sucesso!"
+    login_required: "Crie uma conta ou faça login para entrar no torneio %{tournament}."

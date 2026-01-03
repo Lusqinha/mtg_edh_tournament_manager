@@ -1,5 +1,5 @@
 class TournamentInvitationsController < ApplicationController
-  allow_unauthenticated_access only: %i[ show ]
+  allow_unauthenticated_access only: %i[show]
 
   def show
     @tournament = Tournament.find_by!(invite_code: params[:code])
@@ -7,19 +7,23 @@ class TournamentInvitationsController < ApplicationController
     if authenticated?
       join_tournament
     else
-      session[:invite_code] = params[:code]
-      redirect_to new_registration_path, notice: "Crie uma conta ou faça login para entrar no torneio #{@tournament.name}."
+      save_invite_and_redirect
     end
   end
 
   private
 
   def join_tournament
-    if @tournament.users.exists?(id: Current.user.id)
-      redirect_to @tournament, notice: "Você já está participando deste torneio."
+    if @tournament.participant?(Current.user)
+      redirect_to @tournament, notice: t("invitations.already_participant")
     else
       @tournament.tournament_participants.create!(user: Current.user)
-      redirect_to @tournament, notice: "Você entrou no torneio #{@tournament.name} com sucesso!"
+      redirect_to @tournament, notice: t("invitations.joined", tournament: @tournament.name)
     end
+  end
+
+  def save_invite_and_redirect
+    session[:invite_code] = params[:code]
+    redirect_to new_registration_path, notice: t("invitations.login_required", tournament: @tournament.name)
   end
 end

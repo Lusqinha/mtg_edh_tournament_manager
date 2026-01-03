@@ -5,7 +5,7 @@ Rails.application.routes.draw do
   resource :session
   resource :profile, only: %i[ update ]
   resources :passwords, param: :token
-  resources :users, only: %i[ show ]
+  resources :users, only: %i[ show ], param: :uuid
 
   get "quick_match", to: "matches#select_tournament"
   get "invite/:code", to: "tournament_invitations#show", as: :tournament_invite

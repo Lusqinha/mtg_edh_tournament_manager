@@ -11,7 +11,6 @@ const organizedTournaments = computed(() => page.props.organized_tournaments || 
 
 const showSidebar = ref(false)
 const showUserMenu = ref(false)
-const showNotifications = ref(false)
 const showMatchModal = ref(false)
 
 const isUrl = (url) => {
@@ -23,24 +22,21 @@ const isUrl = (url) => {
 
 const toggleSidebar = () => showSidebar.value = !showSidebar.value
 const toggleUserMenu = () => showUserMenu.value = !showUserMenu.value
-const toggleNotifications = () => showNotifications.value = !showNotifications.value
 const openMatchModal = () => {
   showMatchModal.value = true
-  showSidebar.value = false // Close sidebar if open
+  showSidebar.value = false
 }
 
 const closeAll = () => {
   showSidebar.value = false
   showUserMenu.value = false
-  showNotifications.value = false
-  // Don't close modal here, it has its own close handler
 }
 </script>
 
 <template>
   <div class="bg-theme-base text-theme-text font-sans antialiased min-h-screen flex flex-col overflow-x-hidden">
     <!-- Overlay -->
-    <div v-if="showSidebar || showUserMenu || showNotifications" @click="closeAll" class="fixed inset-0 bg-black/50 z-40 transition-opacity"></div>
+    <div v-if="showSidebar || showUserMenu" @click="closeAll" class="fixed inset-0 bg-black/50 z-40 transition-opacity"></div>
 
     <!-- Sidebar -->
     <aside :class="['fixed top-0 left-0 bottom-0 w-64 bg-theme-surface border-r border-theme-border z-60 transform transition-transform duration-300 ease-in-out', showSidebar ? 'translate-x-0' : '-translate-x-full']">
@@ -61,8 +57,11 @@ const closeAll = () => {
         </Link>
         <div class="border-t border-theme-border my-2"></div>
         <template v-if="user">
-          <Link :href="`/users/${user.id}`" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-github-btn-bg text-theme-text transition-colors" @click="showSidebar = false">
-            <Icon icon="mdi:account-outline" class="w-5 h-5 text-theme-muted" />
+          <Link :href="`/users/${user.uuid}`" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-github-btn-bg text-theme-text transition-colors" @click="showSidebar = false">
+            <div class="w-5 h-5 rounded-full bg-theme-base border border-theme-border overflow-hidden flex items-center justify-center">
+              <img v-if="user.avatar_url" :src="user.avatar_url" alt="Avatar" class="w-full h-full object-cover" />
+              <Icon v-else icon="mdi:account-outline" class="w-3 h-3 text-theme-muted" />
+            </div>
             Meu Perfil
           </Link>
           <Link href="/session" method="delete" as="button" class="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-red-500/10 text-red-400 transition-colors text-left" @click="showSidebar = false">
@@ -105,34 +104,25 @@ const closeAll = () => {
             <span>Registrar Partida</span>
           </button>
 
-          <!-- Notifications -->
-          <div class="relative">
-            <button @click="toggleNotifications" class="text-theme-text hover:text-theme-secondary transition-colors relative p-1 rounded-md hover:bg-github-btn-bg">
-              <Icon icon="mdi:bell-outline" class="w-5 h-5" />
-              <span class="absolute top-1 right-1 w-2 h-2 bg-theme-primary rounded-full border-2 border-theme-surface"></span>
-            </button>
-            
-            <div v-if="showNotifications" class="absolute top-full right-0 mt-2 w-64 bg-theme-surface border border-theme-border rounded-md shadow-xl py-2 z-50">
-              <div class="px-4 py-2 border-b border-theme-border text-xs font-semibold text-theme-muted uppercase">Notificações</div>
-              <div class="p-4 text-center text-sm text-theme-muted">
-                Nenhuma notificação nova.
-              </div>
-            </div>
-          </div>
-
           <!-- User Menu -->
           <div class="relative">
-            <button @click="toggleUserMenu" class="text-theme-text hover:text-theme-secondary transition-colors p-1 rounded-md hover:bg-github-btn-bg">
-              <Icon icon="mdi:dots-horizontal" class="w-5 h-5" />
+            <button @click="toggleUserMenu" class="flex items-center gap-2 text-theme-text hover:text-theme-secondary transition-colors p-1 rounded-md hover:bg-github-btn-bg">
+              <div class="w-7 h-7 rounded-full bg-theme-surface border border-theme-border overflow-hidden flex items-center justify-center">
+                <img v-if="user?.avatar_url" :src="user.avatar_url" alt="Avatar" class="w-full h-full object-cover" />
+                <Icon v-else icon="mdi:account" class="w-4 h-4 text-theme-muted" />
+              </div>
             </button>
 
             <div v-if="showUserMenu" class="absolute top-full right-0 mt-2 w-48 bg-theme-surface border border-theme-border rounded-md shadow-xl py-1 z-50">
               <template v-if="user">
-                <div class="px-4 py-2 border-b border-theme-border mb-1">
+                <div class="px-4 py-2 border-b border-theme-border mb-1 flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-full bg-theme-base border border-theme-border overflow-hidden flex items-center justify-center shrink-0">
+                    <img v-if="user.avatar_url" :src="user.avatar_url" alt="Avatar" class="w-full h-full object-cover" />
+                    <Icon v-else icon="mdi:account" class="w-4 h-4 text-theme-muted" />
+                  </div>
                   <p class="text-sm font-medium text-theme-text truncate">{{ user.nickname }}</p>
-                  <p class="text-xs text-theme-muted truncate">{{ user.email_address }}</p>
                 </div>
-                <Link :href="`/users/${user.id}`" class="flex items-center gap-2 px-4 py-2 text-sm text-theme-text hover:bg-github-btn-bg hover:text-theme-secondary" @click="showUserMenu = false">
+                <Link :href="`/users/${user.uuid}`" class="flex items-center gap-2 px-4 py-2 text-sm text-theme-text hover:bg-github-btn-bg hover:text-theme-secondary" @click="showUserMenu = false">
                   <Icon icon="mdi:account-outline" class="w-4 h-4" />
                   Perfil
                 </Link>
@@ -187,8 +177,11 @@ const closeAll = () => {
         </button>
       </div>
 
-      <Link :href="`/users/${user.id}`" class="flex flex-col items-center gap-1 p-2 text-theme-muted hover:text-theme-text" :class="{ 'text-theme-secondary': isUrl(`/users/${user.id}`) }">
-        <Icon icon="mdi:account-outline" class="w-6 h-6" />
+      <Link :href="`/users/${user.uuid}`" class="flex flex-col items-center gap-1 p-2 text-theme-muted hover:text-theme-text" :class="{ 'text-theme-secondary': isUrl(`/users/${user.uuid}`) }">
+        <div class="w-6 h-6 rounded-full bg-theme-surface border border-theme-border overflow-hidden flex items-center justify-center">
+          <img v-if="user.avatar_url" :src="user.avatar_url" alt="Avatar" class="w-full h-full object-cover" />
+          <Icon v-else icon="mdi:account-outline" class="w-4 h-4" />
+        </div>
         <span class="text-[10px] font-medium">Perfil</span>
       </Link>
 

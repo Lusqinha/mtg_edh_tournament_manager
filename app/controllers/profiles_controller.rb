@@ -1,32 +1,36 @@
 class ProfilesController < ApplicationController
   def update
-    if params[:password].present?
-      update_password
-    else
-      update_profile
-    end
+    params[:password].present? ? update_password : update_profile
   end
 
   private
 
   def update_password
-    if Current.user.authenticate(params[:current_password])
-      if Current.user.update(password_params)
-        redirect_to user_path(Current.user), notice: "Senha atualizada com sucesso."
-      else
-        redirect_to user_path(Current.user), alert: "Erro ao atualizar senha: #{Current.user.errors.full_messages.join(', ')}"
-      end
+    unless Current.user.authenticate(params[:current_password])
+      return redirect_to profile_path, alert: t("profiles.update.password_incorrect")
+    end
+
+    if Current.user.update(password_params)
+      redirect_to profile_path, notice: t("profiles.update.password_success")
     else
-      redirect_to user_path(Current.user), alert: "Senha atual incorreta."
+      redirect_to profile_path, alert: t("profiles.update.password_error", errors: error_messages)
     end
   end
 
   def update_profile
     if Current.user.update(profile_params)
-      redirect_to user_path(Current.user), notice: "Perfil atualizado com sucesso."
+      redirect_to profile_path, notice: t("profiles.update.success")
     else
-      redirect_to user_path(Current.user), alert: "Erro ao atualizar perfil: #{Current.user.errors.full_messages.join(', ')}"
+      redirect_to profile_path, alert: t("profiles.update.error", errors: error_messages)
     end
+  end
+
+  def profile_path
+    user_path(uuid: Current.user.uuid)
+  end
+
+  def error_messages
+    Current.user.errors.full_messages.to_sentence
   end
 
   def password_params
@@ -34,6 +38,6 @@ class ProfilesController < ApplicationController
   end
 
   def profile_params
-    params.permit(:nickname)
+    params.permit(:nickname, :avatar_url)
   end
 end

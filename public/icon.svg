@@ -1,3 +1,45 @@
-<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="256" cy="256" r="256" fill="red"/>
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#161b22"/>
+      <stop offset="100%" style="stop-color:#0d1117"/>
+    </linearGradient>
+    <linearGradient id="trophy" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e3b341"/>
+      <stop offset="100%" style="stop-color:#d29922"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+  
+  <!-- Border -->
+  <rect x="8" y="8" width="496" height="496" rx="88" fill="none" stroke="#30363d" stroke-width="4"/>
+  
+  <!-- Trophy Icon -->
+  <g transform="translate(128, 96)">
+    <!-- Trophy cup -->
+    <path d="M48 0h160v32c0 8.8-7.2 16-16 16H64c-8.8 0-16-7.2-16-16V0z" fill="url(#trophy)"/>
+    
+    <!-- Trophy body -->
+    <path d="M48 48h160v80c0 44.2-35.8 80-80 80h0c-44.2 0-80-35.8-80-80V48z" fill="url(#trophy)"/>
+    
+    <!-- Left handle -->
+    <path d="M48 64H16c-8.8 0-16 7.2-16 16v32c0 26.5 21.5 48 48 48h0V64z" fill="url(#trophy)" opacity="0.8"/>
+    
+    <!-- Right handle -->
+    <path d="M208 64h32c8.8 0 16 7.2 16 16v32c0 26.5-21.5 48-48 48h0V64z" fill="url(#trophy)" opacity="0.8"/>
+    
+    <!-- Trophy stem -->
+    <rect x="104" y="208" width="48" height="48" fill="url(#trophy)"/>
+    
+    <!-- Trophy base -->
+    <path d="M64 256h128c8.8 0 16 7.2 16 16v16c0 8.8-7.2 16-16 16H64c-8.8 0-16-7.2-16-16v-16c0-8.8 7.2-16 16-16z" fill="url(#trophy)"/>
+    
+    <!-- Star decoration -->
+    <path d="M128 80l12 24 26 4-19 18 5 26-24-12-24 12 5-26-19-18 26-4z" fill="#0d1117" opacity="0.3"/>
+  </g>
+  
+  <!-- Accent glow -->
+  <circle cx="256" cy="220" r="60" fill="#238636" opacity="0.15"/>
 </svg>

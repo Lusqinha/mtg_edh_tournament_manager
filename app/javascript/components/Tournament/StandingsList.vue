@@ -36,6 +36,12 @@ const getPositionIcon = (index) => {
           <span v-else>{{ index + 1 }}</span>
         </div>
         
+        <!-- Player Avatar -->
+        <div class="w-8 h-8 rounded-full bg-theme-base border border-theme-border overflow-hidden flex items-center justify-center shrink-0">
+          <img v-if="participant.user.avatar_url" :src="participant.user.avatar_url" :alt="participant.user.nickname" class="w-full h-full object-cover" />
+          <Icon v-else icon="mdi:account" class="w-4 h-4 text-theme-muted" />
+        </div>
+
         <!-- Player Info -->
         <div class="flex-1 min-w-0">
           <div class="flex items-center justify-between gap-2">
@@ -88,7 +94,15 @@ const getPositionIcon = (index) => {
               <span v-else>{{ index + 1 }}</span>
             </div>
           </td>
-          <td class="px-4 py-3 font-medium text-theme-text">{{ participant.user.nickname }}</td>
+          <td class="px-4 py-3">
+            <div class="flex items-center gap-2">
+              <div class="w-6 h-6 rounded-full bg-theme-base border border-theme-border overflow-hidden flex items-center justify-center shrink-0">
+                <img v-if="participant.user.avatar_url" :src="participant.user.avatar_url" :alt="participant.user.nickname" class="w-full h-full object-cover" />
+                <Icon v-else icon="mdi:account" class="w-3 h-3 text-theme-muted" />
+              </div>
+              <span class="font-medium text-theme-text">{{ participant.user.nickname }}</span>
+            </div>
+          </td>
           <td class="px-4 py-3 text-center text-theme-muted">{{ participant.matches_played }}</td>
           <td class="px-4 py-3 text-center text-theme-muted">{{ participant.wins }}</td>
           <td class="px-4 py-3 text-center text-theme-muted">{{ participant.win_rate }}%</td>

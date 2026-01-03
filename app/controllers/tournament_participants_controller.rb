@@ -3,19 +3,25 @@ class TournamentParticipantsController < ApplicationController
   before_action :authorize_organizer!
 
   def create
-    @participant = @tournament.tournament_participants.build(user_id: params[:user_id])
+    user = User.find_by(id: params[:user_id])
 
-    if @participant.save
-      redirect_to @tournament, notice: "Jogador adicionado com sucesso."
+    return redirect_to @tournament, alert: t("participants.create.not_found") unless user
+    return redirect_to @tournament, alert: t("participants.create.already_participant") if @tournament.participant?(user)
+
+    participant = @tournament.tournament_participants.build(user:)
+
+    if participant.save
+      redirect_to @tournament, notice: t("participants.create.success")
     else
-      redirect_to @tournament, alert: "Não foi possível adicionar o jogador."
+      redirect_to @tournament, alert: t("participants.create.error")
     end
   end
 
   def destroy
-    @participant = @tournament.tournament_participants.find(params[:id])
-    @participant.destroy
-    redirect_to @tournament, notice: "Jogador removido."
+    participant = @tournament.tournament_participants.find(params[:id])
+    participant.destroy
+
+    redirect_to @tournament, notice: t("participants.destroy.success")
   end
 
   private
@@ -25,8 +31,8 @@ class TournamentParticipantsController < ApplicationController
   end
 
   def authorize_organizer!
-    unless @tournament.organizers.exists?(id: Current.user.id)
-      redirect_to tournament_path(@tournament), alert: "Você não tem permissão para gerenciar participantes deste torneio."
-    end
+    return if @tournament.organizer?(Current.user)
+
+    redirect_to tournament_path(@tournament), alert: t("participants.unauthorized")
   end
 end
