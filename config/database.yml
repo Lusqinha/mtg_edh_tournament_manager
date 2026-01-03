@@ -1,11 +1,11 @@
 default: &default
   adapter: postgresql
   encoding: unicode
-  username: <%= ENV.fetch("POSTGRES_USER") %>
-  password: <%= ENV.fetch("POSTGRES_PASSWORD") %>
-  host: <%= ENV.fetch("POSTGRES_HOST") %>
-  port: <%= ENV.fetch("POSTGRES_PORT") %>
-  pool: <%= ENV.fetch("RAILS_MAX_THREADS") %>
+  username: <%= ENV.fetch("POSTGRES_USER", "postgres") %>
+  password: <%= ENV.fetch("POSTGRES_PASSWORD", "") %>
+  host: <%= ENV.fetch("POSTGRES_HOST", "localhost") %>
+  port: <%= ENV.fetch("POSTGRES_PORT", 5432) %>
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS", 5) %>
 
 development:
   <<: *default
@@ -17,17 +17,17 @@ test:
 
 production:
   primary: &primary_production
-    database: <%= ENV.fetch("POSTGRES_DB") %>
     <<: *default
+    database: <%= ENV.fetch("POSTGRES_DB", "liga_mesao_production") %>
   cache:
     <<: *primary_production
-    database: liga_mesao_production_cache
+    database: <%= ENV.fetch("POSTGRES_DB", "liga_mesao_production") %>_cache
     migrations_paths: db/cache_migrate
   queue:
     <<: *primary_production
-    database: liga_mesao_production_queue
+    database: <%= ENV.fetch("POSTGRES_DB", "liga_mesao_production") %>_queue
     migrations_paths: db/queue_migrate
   cable:
     <<: *primary_production
-    database: liga_mesao_production_cable
+    database: <%= ENV.fetch("POSTGRES_DB", "liga_mesao_production") %>_cable
     migrations_paths: db/cable_migrate
