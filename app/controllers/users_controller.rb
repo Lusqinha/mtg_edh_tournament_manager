@@ -16,6 +16,7 @@ class UsersController < ApplicationController
       
       {
         id: tournament.id,
+        slug: tournament.slug,
         name: tournament.name,
         score: participation.score,
         rank: rank,

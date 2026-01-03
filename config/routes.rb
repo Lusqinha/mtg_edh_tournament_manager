@@ -10,7 +10,7 @@ Rails.application.routes.draw do
   get "quick_match", to: "matches#select_tournament"
   get "invite/:code", to: "tournament_invitations#show", as: :tournament_invite
 
-  resources :tournaments do
+  resources :tournaments, param: :slug do
     resources :matches, only: %i[ new create edit update show ]
     resources :participants, only: %i[ create destroy ], controller: "tournament_participants"
   end

@@ -21,7 +21,7 @@ class TournamentParticipantsController < ApplicationController
   private
 
   def set_tournament
-    @tournament = Tournament.find(params[:tournament_id])
+    @tournament = Tournament.friendly.find(params[:tournament_slug])
   end
 
   def authorize_organizer!

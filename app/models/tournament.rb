@@ -1,4 +1,7 @@
 class Tournament < ApplicationRecord
+  extend FriendlyId
+  friendly_id :name, use: :slugged
+
   belongs_to :created_by, class_name: "User", foreign_key: "owner_id"
 
   has_many :matches, dependent: :destroy
@@ -18,17 +21,18 @@ class Tournament < ApplicationRecord
   has_secure_token :invite_code
 
   validates :name, presence: true
+  validates :slug, presence: true, uniqueness: true
 
   def details_for_display(user)
     is_organizer = organizers.exists?(id: user.id)
-    
-    as_json(only: [ :id, :name, :created_at, :number_of_rounds, :max_players ]).merge(
+
+    as_json(only: [ :id, :name, :slug, :created_at, :number_of_rounds, :max_players ]).merge(
       created_by: { nickname: created_by.nickname },
       is_organizer: is_organizer,
       invite_code: is_organizer ? invite_code : nil,
       is_participant: users.exists?(id: user.id),
-      scorings: tournament_scorings.order(:position).as_json(only: [:position, :points]),
-      achievements: tournament_achievements.as_json(only: [:title, :description, :points, :unique_completion])
+      scorings: tournament_scorings.order(:position).as_json(only: [ :position, :points ]),
+      achievements: tournament_achievements.as_json(only: [ :title, :description, :points, :unique_completion ])
     )
   end
 
@@ -36,7 +40,7 @@ class Tournament < ApplicationRecord
     tournament_participants.includes(:user).order(score: :desc).map do |p|
       matches_played = MatchResult.where(tournament_id: id, user_id: p.user_id).count
       wins = Match.where(tournament_id: id, winner_id: p.user_id).count
-      
+
       p.as_json(only: [ :score ]).merge(
         user: { nickname: p.user.nickname },
         matches_played: matches_played,
@@ -53,5 +57,12 @@ class Tournament < ApplicationRecord
         created_by: { nickname: m.created_by.nickname }
       )
     end
+  end
+
+  private
+
+  def resolve_friendly_id_conflict(candidates)
+    suffix = SecureRandom.alphanumeric(4).downcase
+    "#{candidates.first}-#{suffix}"
   end
 end

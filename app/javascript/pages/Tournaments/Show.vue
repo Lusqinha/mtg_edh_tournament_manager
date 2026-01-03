@@ -38,7 +38,7 @@ const copyInviteLink = () => {
       </div>
 
       <div v-if="tournament.is_organizer || tournament.is_participant" class="flex gap-3 mb-8 overflow-x-auto pb-2 custom-scrollbar">
-        <Link :href="`/tournaments/${tournament.id}/matches/new`" class="flex items-center gap-2 px-4 py-2 rounded-md bg-theme-primary text-white font-medium text-sm hover:bg-github-btn-primary-hover transition-colors whitespace-nowrap border border-[rgba(240,246,252,0.1)] shadow-sm">
+        <Link :href="`/tournaments/${tournament.slug}/matches/new`" class="flex items-center gap-2 px-4 py-2 rounded-md bg-theme-primary text-white font-medium text-sm hover:bg-github-btn-primary-hover transition-colors whitespace-nowrap border border-[rgba(240,246,252,0.1)] shadow-sm">
           <Icon icon="mdi:sword-cross" class="w-4 h-4" />
           <span class="hidden sm:inline">Iniciar Partida</span>
         </Link>
@@ -53,7 +53,7 @@ const copyInviteLink = () => {
           <span class="hidden sm:inline">Convidar</span>
         </button>
 
-        <Link v-if="tournament.is_organizer" :href="`/tournaments/${tournament.id}/edit`" class="flex items-center gap-2 px-4 py-2 rounded-md bg-github-btn-bg text-theme-text font-medium text-sm hover:bg-github-btn-hover transition-colors whitespace-nowrap border border-theme-border">
+        <Link v-if="tournament.is_organizer" :href="`/tournaments/${tournament.slug}/edit`" class="flex items-center gap-2 px-4 py-2 rounded-md bg-github-btn-bg text-theme-text font-medium text-sm hover:bg-github-btn-hover transition-colors whitespace-nowrap border border-theme-border">
           <Icon icon="mdi:pencil" class="w-4 h-4" />
           <span class="hidden sm:inline">Editar Torneio</span>
         </Link>
@@ -62,7 +62,7 @@ const copyInviteLink = () => {
       <AddPlayerModal 
         :show="showAddPlayerModal" 
         :available-users="available_users" 
-        :tournament-id="tournament.id"
+        :tournament-slug="tournament.slug"
         @close="showAddPlayerModal = false"
       />
 

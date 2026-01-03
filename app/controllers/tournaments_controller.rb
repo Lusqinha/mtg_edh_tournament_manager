@@ -1,7 +1,7 @@
 class TournamentsController < ApplicationController
   def index
     tournaments = Tournament.includes(:created_by, :users, :matches).order(created_at: :desc).map do |t|
-      t.as_json(only: [ :id, :name, :created_at ]).merge(
+      t.as_json(only: [ :id, :name, :slug, :created_at ]).merge(
         created_by: { nickname: t.created_by.nickname },
         participants_count: t.users.size,
         matches_count: t.matches.size
@@ -11,7 +11,7 @@ class TournamentsController < ApplicationController
   end
 
   def show
-    @tournament = Tournament.find(params[:id])
+    @tournament = Tournament.friendly.find(params[:slug])
     
     available_users = if @tournament.organizers.exists?(id: Current.user.id)
       User.where.not(id: @tournament.users.select(:id)).select(:id, :nickname)
@@ -49,7 +49,7 @@ class TournamentsController < ApplicationController
   end
 
   def edit
-    @tournament = Tournament.find(params[:id])
+    @tournament = Tournament.friendly.find(params[:slug])
     authorize_organizer!(@tournament)
 
     render inertia: "Tournaments/Edit", props: {
@@ -61,7 +61,7 @@ class TournamentsController < ApplicationController
   end
 
   def update
-    @tournament = Tournament.find(params[:id])
+    @tournament = Tournament.friendly.find(params[:slug])
     authorize_organizer!(@tournament)
 
     if @tournament.update(tournament_params)

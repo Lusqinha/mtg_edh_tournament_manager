@@ -235,7 +235,7 @@ const closeAll = () => {
                     <Link 
                       v-for="tournament in organizedTournaments" 
                       :key="tournament.id"
-                      :href="`/tournaments/${tournament.id}/matches/new`"
+                      :href="`/tournaments/${tournament.slug}/matches/new`"
                       class="flex items-center justify-between p-3 rounded-md border border-theme-border hover:bg-github-btn-bg transition-colors group"
                       @click="showMatchModal = false"
                     >

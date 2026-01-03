@@ -28,7 +28,7 @@ const formatDate = (dateString) => {
     </div>
 
     <div class="grid grid-cols-1 gap-3">
-      <Link v-for="tournament in tournaments" :key="tournament.id" :href="`/tournaments/${tournament.id}`" class="group block p-4 rounded-md bg-theme-surface border border-theme-border hover:border-theme-muted transition-all shadow-sm">
+      <Link v-for="tournament in tournaments" :key="tournament.id" :href="`/tournaments/${tournament.slug}`" class="group block p-4 rounded-md bg-theme-surface border border-theme-border hover:border-theme-muted transition-all shadow-sm">
         <div class="flex justify-between items-start mb-2">
           <div>
             <h3 class="text-base font-semibold text-theme-secondary group-hover:underline transition-colors">{{ tournament.name }}</h3>

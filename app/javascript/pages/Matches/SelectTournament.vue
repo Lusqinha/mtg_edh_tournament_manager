@@ -28,7 +28,7 @@ defineProps({
         <Link
           v-for="tournament in tournaments"
           :key="tournament.id"
-          :href="`/tournaments/${tournament.id}/matches/new`"
+          :href="`/tournaments/${tournament.slug}/matches/new`"
           class="block p-6 bg-white rounded-lg border border-gray-200 shadow-sm hover:bg-gray-50 hover:border-indigo-300 transition-colors duration-200"
         >
           <h3 class="text-lg font-medium text-gray-900 truncate">{{ tournament.name }}</h3>

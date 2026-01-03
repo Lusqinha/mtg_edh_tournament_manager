@@ -12,7 +12,7 @@ const form = useForm({
 })
 
 const submit = () => {
-  form.post(`/tournaments/${props.tournament.id}/matches`)
+  form.post(`/tournaments/${props.tournament.slug}/matches`)
 }
 </script>
 
@@ -56,7 +56,7 @@ const submit = () => {
           <button type="submit" :disabled="form.processing" class="flex-1 py-2 px-4 rounded-md bg-theme-primary text-white font-medium hover:bg-github-btn-primary-hover transition-colors border border-[rgba(240,246,252,0.1)] shadow-sm disabled:opacity-50 disabled:cursor-not-allowed text-sm">
             {{ form.processing ? 'Iniciando...' : 'Iniciar Partida' }}
           </button>
-          <Link :href="`/tournaments/${tournament.id}`" class="px-4 py-2 rounded-md bg-github-btn-bg text-theme-text font-medium hover:bg-github-btn-hover transition-colors border border-theme-border text-center text-sm">
+          <Link :href="`/tournaments/${tournament.slug}`" class="px-4 py-2 rounded-md bg-github-btn-bg text-theme-text font-medium hover:bg-github-btn-hover transition-colors border border-theme-border text-center text-sm">
             Cancelar
           </Link>
         </div>

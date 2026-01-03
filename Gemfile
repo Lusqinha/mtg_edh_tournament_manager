@@ -71,4 +71,6 @@ end
 
 gem "rails-i18n", "~> 8.1"
 
+gem "friendly_id", "~> 5.5"
+
 gem "tailwindcss-rails", "~> 4.4"

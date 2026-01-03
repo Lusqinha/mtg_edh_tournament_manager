@@ -91,7 +91,7 @@ watch(() => form.winner_id, (newWinnerId) => {
 })
 
 const submit = () => {
-  form.put(`/tournaments/${props.tournament.id}/matches/${props.match.id}`)
+  form.put(`/tournaments/${props.tournament.slug}/matches/${props.match.id}`)
 }
 </script>
 
@@ -206,7 +206,7 @@ const submit = () => {
         <button type="submit" :disabled="form.processing" class="flex-1 py-3 px-6 rounded-md bg-theme-primary text-white font-medium hover:bg-github-btn-primary-hover transition-colors border border-[rgba(240,246,252,0.1)] shadow-sm disabled:opacity-50 disabled:cursor-not-allowed text-base">
           {{ form.processing ? 'Salvando...' : 'Finalizar Partida' }}
         </button>
-        <Link :href="`/tournaments/${tournament.id}`" class="px-6 py-3 rounded-md bg-github-btn-bg text-theme-text font-medium hover:bg-github-btn-hover transition-colors border border-theme-border text-center text-base">
+        <Link :href="`/tournaments/${tournament.slug}`" class="px-6 py-3 rounded-md bg-github-btn-bg text-theme-text font-medium hover:bg-github-btn-hover transition-colors border border-theme-border text-center text-base">
           Cancelar
         </Link>
       </div>

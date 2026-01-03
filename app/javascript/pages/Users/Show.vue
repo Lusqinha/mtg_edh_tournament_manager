@@ -156,7 +156,7 @@ const formatDateTime = (date) => {
         <div class="space-y-3">
           <div v-for="stat in tournament_stats" :key="stat.id" class="bg-theme-surface rounded-md border border-theme-border p-4 hover:border-theme-muted transition-colors">
             <div class="flex justify-between items-start mb-2">
-              <Link :href="`/tournaments/${stat.id}`" class="font-semibold text-theme-secondary hover:underline">
+              <Link :href="`/tournaments/${stat.slug}`" class="font-semibold text-theme-secondary hover:underline">
                 {{ stat.name }}
               </Link>
               <span class="text-xs text-theme-muted">{{ formatDate(stat.created_at) }}</span>

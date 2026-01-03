@@ -4,7 +4,7 @@ import { useForm } from '@inertiajs/vue3'
 const props = defineProps({
   show: Boolean,
   availableUsers: Array,
-  tournamentId: Number
+  tournamentSlug: String
 })
 
 const emit = defineEmits(['close'])
@@ -14,7 +14,7 @@ const form = useForm({
 })
 
 const submit = () => {
-  form.post(`/tournaments/${props.tournamentId}/participants`, {
+  form.post(`/tournaments/${props.tournamentSlug}/participants`, {
     onSuccess: () => {
       emit('close')
       form.reset()

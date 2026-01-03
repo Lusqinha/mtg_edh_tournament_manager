@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_21_173320) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_03_193426) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -113,8 +113,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_21_173320) do
     t.datetime "updated_at", null: false
     t.integer "owner_id", null: false
     t.string "invite_code"
+    t.string "slug", null: false
     t.index ["invite_code"], name: "index_tournaments_on_invite_code", unique: true
     t.index ["owner_id"], name: "index_tournaments_on_owner_id"
+    t.index ["slug"], name: "index_tournaments_on_slug", unique: true
   end
 
   create_table "users", force: :cascade do |t|

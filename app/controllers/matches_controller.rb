@@ -4,7 +4,9 @@ class MatchesController < ApplicationController
   before_action :set_match, only: %i[ edit update show ]
 
   def select_tournament
-    @tournaments = Current.user.organized_tournaments.order(created_at: :desc)
+    @tournaments = Current.user.organized_tournaments.order(created_at: :desc).map do |t|
+      t.as_json(only: [:id, :name, :slug, :created_at])
+    end
     render inertia: "Matches/SelectTournament", props: {
       tournaments: @tournaments
     }
@@ -135,7 +137,7 @@ class MatchesController < ApplicationController
   private
 
   def set_tournament
-    @tournament = Tournament.find(params[:tournament_id])
+    @tournament = Tournament.friendly.find(params[:tournament_slug])
   end
 
   def set_match

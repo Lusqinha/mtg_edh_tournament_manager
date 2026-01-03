@@ -64,14 +64,14 @@ const removeAchievement = (index) => {
 }
 
 const submit = () => {
-  form.put(`/tournaments/${props.tournament.id}`)
+  form.put(`/tournaments/${props.tournament.slug}`)
 }
 </script>
 
 <template>
   <div class="max-w-3xl mx-auto px-4 py-8">
     <div class="flex items-center gap-3 mb-6">
-      <Link :href="`/tournaments/${tournament.id}`" class="p-1.5 rounded-md hover:bg-github-btn-bg transition-colors text-theme-muted hover:text-theme-secondary">
+      <Link :href="`/tournaments/${tournament.slug}`" class="p-1.5 rounded-md hover:bg-github-btn-bg transition-colors text-theme-muted hover:text-theme-secondary">
         <Icon icon="mdi:arrow-left" class="w-5 h-5" />
       </Link>
       <h1 class="text-xl font-semibold text-theme-text">Editar Torneio</h1>
@@ -181,7 +181,7 @@ const submit = () => {
         </div>
 
         <div class="pt-4 border-t border-theme-border flex justify-end gap-3">
-          <Link :href="`/tournaments/${tournament.id}`" class="px-4 py-2 rounded-md bg-github-btn-bg text-theme-text font-medium hover:bg-github-btn-hover transition-colors border border-theme-border text-sm">
+          <Link :href="`/tournaments/${tournament.slug}`" class="px-4 py-2 rounded-md bg-github-btn-bg text-theme-text font-medium hover:bg-github-btn-hover transition-colors border border-theme-border text-sm">
             Cancelar
           </Link>
           <button type="submit" :disabled="form.processing" class="px-6 py-2 rounded-md bg-theme-primary text-white font-medium hover:bg-github-btn-primary-hover transition-colors border border-[rgba(240,246,252,0.1)] shadow-sm disabled:opacity-50 disabled:cursor-not-allowed text-sm">
