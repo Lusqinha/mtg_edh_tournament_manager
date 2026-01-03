@@ -1,0 +1,39 @@
+{
+  "background_color": "#ffffff",
+  "description": "Gerencie torneios de Commander EDH com ranking, partidas e conquistas",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "Liga Mesão",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "Liga Mesão",
+  "start_url": "/",
+  "theme_color": "#0d1117",
+  "icons": [
+    {
+      "src": "https://magic-liga-mesao.ixca7q.easypanel.host/icon.svg",
+      "type": "image/svg+xml",
+      "isSquare": false,
+      "isPng": false,
+      "isWebp": false,
+      "isJpg": false,
+      "width": 0,
+      "is512x512": false,
+      "is256x256": false,
+      "is192x192": false
+    },
+    {
+      "src": "https://magic-liga-mesao.ixca7q.easypanel.host/icon.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "isSquare": true,
+      "isPng": true,
+      "isWebp": false,
+      "isJpg": false,
+      "width": 512,
+      "is512x512": true,
+      "is256x256": false,
+      "is192x192": false
+    }
+  ]
+}
