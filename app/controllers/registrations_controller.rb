@@ -9,7 +9,7 @@ class RegistrationsController < ApplicationController
     @user = User.new(user_params)
     if @user.save
       start_new_session_for @user
-      redirect_to root_path, notice: t("registrations.create.success")
+      redirect_to after_authentication_url, notice: t("registrations.create.success")
     else
       render inertia: "Registrations/New", props: { user: @user, errors: @user.errors }
     end

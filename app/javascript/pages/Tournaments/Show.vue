@@ -15,6 +15,13 @@ const props = defineProps({
 
 const showAddPlayerModal = ref(false)
 const activeTab = ref('standings') // standings, matches, rules
+
+const copyInviteLink = () => {
+  const url = `${window.location.origin}/invite/${props.tournament.invite_code}`
+  navigator.clipboard.writeText(url).then(() => {
+    alert('Link de convite copiado para a área de transferência!')
+  })
+}
 </script>
 
 <template>
@@ -39,6 +46,11 @@ const activeTab = ref('standings') // standings, matches, rules
         <button v-if="tournament.is_organizer" @click="showAddPlayerModal = true" class="flex items-center gap-2 px-4 py-2 rounded-md bg-github-btn-bg text-theme-text font-medium text-sm hover:bg-github-btn-hover transition-colors whitespace-nowrap border border-theme-border cursor-pointer">
           <Icon icon="mdi:account-plus" class="w-4 h-4" />
           <span class="hidden sm:inline">Adicionar Jogador</span>
+        </button>
+
+        <button v-if="tournament.is_organizer && tournament.invite_code" @click="copyInviteLink" class="flex items-center gap-2 px-4 py-2 rounded-md bg-github-btn-bg text-theme-text font-medium text-sm hover:bg-github-btn-hover transition-colors whitespace-nowrap border border-theme-border cursor-pointer">
+          <Icon icon="mdi:share-variant" class="w-4 h-4" />
+          <span class="hidden sm:inline">Convidar</span>
         </button>
 
         <Link v-if="tournament.is_organizer" :href="`/tournaments/${tournament.id}/edit`" class="flex items-center gap-2 px-4 py-2 rounded-md bg-github-btn-bg text-theme-text font-medium text-sm hover:bg-github-btn-hover transition-colors whitespace-nowrap border border-theme-border">

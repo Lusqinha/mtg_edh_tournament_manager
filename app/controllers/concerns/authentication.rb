@@ -36,6 +36,9 @@ module Authentication
     end
 
     def after_authentication_url
+      if code = session.delete(:invite_code)
+        return tournament_invite_path(code)
+      end
       session.delete(:return_to_after_authenticating) || root_url
     end
 

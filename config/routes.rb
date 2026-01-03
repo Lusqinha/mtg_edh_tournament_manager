@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   resources :users, only: %i[ show ]
 
   get "quick_match", to: "matches#select_tournament"
+  get "invite/:code", to: "tournament_invitations#show", as: :tournament_invite
 
   resources :tournaments do
     resources :matches, only: %i[ new create edit update show ]

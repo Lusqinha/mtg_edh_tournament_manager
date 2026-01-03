@@ -15,12 +15,17 @@ class Tournament < ApplicationRecord
   accepts_nested_attributes_for :tournament_scorings, allow_destroy: true, reject_if: :all_blank
   accepts_nested_attributes_for :tournament_achievements, allow_destroy: true, reject_if: :all_blank
 
+  has_secure_token :invite_code
+
   validates :name, presence: true
 
   def details_for_display(user)
+    is_organizer = organizers.exists?(id: user.id)
+    
     as_json(only: [ :id, :name, :created_at, :number_of_rounds, :max_players ]).merge(
       created_by: { nickname: created_by.nickname },
-      is_organizer: organizers.exists?(id: user.id),
+      is_organizer: is_organizer,
+      invite_code: is_organizer ? invite_code : nil,
       is_participant: users.exists?(id: user.id),
       scorings: tournament_scorings.order(:position).as_json(only: [:position, :points]),
       achievements: tournament_achievements.as_json(only: [:title, :description, :points, :unique_completion])
