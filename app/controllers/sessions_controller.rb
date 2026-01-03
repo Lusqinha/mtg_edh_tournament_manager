@@ -28,7 +28,7 @@ class SessionsController < ApplicationController
     login = params[:login]
     password = params[:password]
 
-    User.authenticate_by(email_address: login, password:) ||
-      User.authenticate_by(nickname: login, password:)
+    User.authenticate_by(nickname: login, password:) ||
+      User.authenticate_by(email_address: login, password:)
   end
 end

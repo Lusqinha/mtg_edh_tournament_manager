@@ -24,21 +24,18 @@ const submit = () => {
 
       <form @submit.prevent="submit" class="space-y-6">
         <div class="space-y-2">
-          <label for="login" class="text-sm font-medium text-[#EEEEEE]/80 ml-1">Email ou Apelido</label>
+          <label for="login" class="text-sm font-medium text-[#EEEEEE]/80 ml-1">Nome de Usuário</label>
           <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <Icon icon="mdi:account" class="h-5 w-5 text-[#EEEEEE]/40" />
             </div>
-            <input id="login" v-model="form.login" type="text" required autofocus autocomplete="username" placeholder="Seu email ou apelido" class="w-full pl-11 pr-4 py-3 rounded-xl bg-[#222831] border border-transparent focus:border-[#00ADB5] focus:bg-[#222831] focus:ring-0 text-[#EEEEEE] placeholder-[#EEEEEE]/40 transition-all outline-none" />
+            <input id="login" v-model="form.login" type="text" required autofocus autocomplete="username" placeholder="Seu nome de usuário" class="w-full pl-11 pr-4 py-3 rounded-xl bg-[#222831] border border-transparent focus:border-[#00ADB5] focus:bg-[#222831] focus:ring-0 text-[#EEEEEE] placeholder-[#EEEEEE]/40 transition-all outline-none" />
           </div>
           <div v-if="form.errors.login" class="text-red-500 text-xs mt-1">{{ form.errors.login }}</div>
         </div>
 
         <div class="space-y-2">
-          <div class="flex justify-between items-center">
-            <label for="password" class="text-sm font-medium text-[#EEEEEE]/80 ml-1">Senha</label>
-            <Link href="/passwords/new" class="text-xs text-[#00ADB5] hover:text-[#00ADB5]/80">Esqueceu a senha?</Link>
-          </div>
+          <label for="password" class="text-sm font-medium text-[#EEEEEE]/80 ml-1">Senha</label>
           <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <Icon icon="mdi:lock" class="h-5 w-5 text-[#EEEEEE]/40" />

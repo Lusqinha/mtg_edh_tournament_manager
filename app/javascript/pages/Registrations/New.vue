@@ -1,14 +1,17 @@
 <script setup>
+import { ref, computed } from 'vue'
 import { useForm, Link } from '@inertiajs/vue3'
 import { Icon } from '@iconify/vue'
 import logoWhite from '../../../assets/images/logo_white.png'
 
 const form = useForm({
-  email_address: '',
   nickname: '',
   password: '',
   password_confirmation: '',
 })
+
+const nicknameLength = computed(() => form.nickname.length)
+const isNicknameTooLong = computed(() => form.nickname.length > 12)
 
 const submit = () => {
   form.post('/registration')
@@ -33,23 +36,31 @@ const submit = () => {
         </div>
 
         <div class="space-y-2">
-          <label for="email_address" class="text-sm font-medium text-[#EEEEEE]/80 ml-1">Email</label>
-          <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <Icon icon="mdi:email" class="h-5 w-5 text-[#EEEEEE]/40" />
-            </div>
-            <input id="email_address" v-model="form.email_address" type="email" required autofocus class="w-full pl-11 pr-4 py-3 rounded-xl bg-[#222831] border border-transparent focus:border-[#00ADB5] focus:bg-[#222831] focus:ring-0 text-[#EEEEEE] placeholder-[#EEEEEE]/40 transition-all outline-none" />
+          <div class="flex items-center justify-between">
+            <label for="nickname" class="text-sm font-medium text-[#EEEEEE]/80 ml-1">Nome de Usuário</label>
+            <span :class="['text-xs', isNicknameTooLong ? 'text-red-400' : 'text-[#EEEEEE]/40']">
+              {{ nicknameLength }}/12
+            </span>
           </div>
-        </div>
-
-        <div class="space-y-2">
-          <label for="nickname" class="text-sm font-medium text-[#EEEEEE]/80 ml-1">Apelido</label>
           <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <Icon icon="mdi:account" class="h-5 w-5 text-[#EEEEEE]/40" />
             </div>
-            <input id="nickname" v-model="form.nickname" type="text" required class="w-full pl-11 pr-4 py-3 rounded-xl bg-[#222831] border border-transparent focus:border-[#00ADB5] focus:bg-[#222831] focus:ring-0 text-[#EEEEEE] placeholder-[#EEEEEE]/40 transition-all outline-none" />
+            <input
+              id="nickname"
+              v-model="form.nickname"
+              type="text"
+              required
+              autofocus
+              maxlength="12"
+              placeholder="Seu nome único"
+              :class="[
+                'w-full pl-11 pr-4 py-3 rounded-xl bg-[#222831] border focus:bg-[#222831] focus:ring-0 text-[#EEEEEE] placeholder-[#EEEEEE]/40 transition-all outline-none',
+                isNicknameTooLong ? 'border-red-500' : 'border-transparent focus:border-[#00ADB5]'
+              ]"
+            />
           </div>
+          <p class="text-xs text-[#EEEEEE]/40 ml-1">Pode conter letras maiúsculas e minúsculas</p>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
@@ -74,13 +85,13 @@ const submit = () => {
           </div>
         </div>
 
-        <button type="submit" :disabled="form.processing" class="w-full py-3.5 rounded-xl bg-[#00ADB5] text-[#EEEEEE] font-bold shadow-lg shadow-[#00ADB5]/20 hover:shadow-[#00ADB5]/40 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer mt-4 disabled:opacity-50">
+        <button type="submit" :disabled="form.processing || isNicknameTooLong" class="w-full py-3.5 rounded-xl bg-[#00ADB5] text-[#EEEEEE] font-bold shadow-lg shadow-[#00ADB5]/20 hover:shadow-[#00ADB5]/40 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer mt-4 disabled:opacity-50">
           Criar Conta
         </button>
       </form>
 
       <div class="mt-8 text-center text-sm text-[#EEEEEE]/60">
-        Já tem uma conta? 
+        Já tem uma conta?
         <Link href="/session/new" class="text-[#00ADB5] font-medium hover:text-[#00ADB5]/80 ml-1">Entrar</Link>
       </div>
     </div>

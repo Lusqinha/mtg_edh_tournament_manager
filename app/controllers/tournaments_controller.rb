@@ -5,7 +5,7 @@ class TournamentsController < ApplicationController
   def index
     tournaments = Tournament.with_associations.recent.map do |tournament|
       tournament.as_json(only: %i[id name slug created_at]).merge(
-        created_by: { nickname: tournament.created_by.nickname },
+        created_by: { nickname: tournament.created_by.nickname, avatar_url: tournament.created_by.avatar_url },
         participants_count: tournament.users.size,
         matches_count: tournament.matches.size
       )
@@ -21,7 +21,8 @@ class TournamentsController < ApplicationController
       tournament: @tournament.details_for_display(Current.user),
       participants: @tournament.standings_data,
       matches: @tournament.matches_data,
-      available_users:
+      available_users:,
+      statistics: @tournament.statistics_data
     }
   end
 

@@ -1,18 +1,22 @@
 Rails.application.routes.draw do
   root "home#index"
 
-  resource :registration, only: %i[ new create ]
+  resource :registration, only: %i[new create]
   resource :session
-  resource :profile, only: %i[ update ]
+  resource :profile, only: %i[update]
   resources :passwords, param: :token
-  resources :users, only: %i[ show ], param: :uuid
+  resources :users, only: %i[show], param: :uuid
+
+  get "choose_avatar", to: "avatars#new", as: :choose_avatar
+  post "choose_avatar", to: "avatars#create"
 
   get "quick_match", to: "matches#select_tournament"
   get "invite/:code", to: "tournament_invitations#show", as: :tournament_invite
 
   resources :tournaments, param: :slug do
-    resources :matches, only: %i[ new create edit update show ]
-    resources :participants, only: %i[ create destroy ], controller: "tournament_participants"
+    resources :matches, only: %i[new create edit update show]
+    resources :participants, only: %i[create destroy], controller: "tournament_participants"
+    resources :organizers, only: %i[create destroy], controller: "tournament_organizers"
   end
 
 

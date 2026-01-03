@@ -32,7 +32,14 @@ const formatDate = (dateString) => {
         <div class="flex justify-between items-start mb-2">
           <div>
             <h3 class="text-base font-semibold text-theme-secondary group-hover:underline transition-colors">{{ tournament.name }}</h3>
-            <p class="text-xs text-theme-muted mt-1">Criado por <span class="text-theme-text">{{ tournament.created_by.nickname }}</span></p>
+            <div class="flex items-center gap-1.5 mt-1 text-xs text-theme-muted">
+              <span>Criado por</span>
+              <div class="w-4 h-4 rounded-full bg-theme-base border border-theme-border overflow-hidden flex items-center justify-center shrink-0">
+                <img v-if="tournament.created_by.avatar_url" :src="tournament.created_by.avatar_url" :alt="tournament.created_by.nickname" class="w-full h-full object-cover" />
+                <Icon v-else icon="mdi:account" class="w-2 h-2 text-theme-muted" />
+              </div>
+              <span class="text-theme-text">{{ tournament.created_by.nickname }}</span>
+            </div>
           </div>
           <div class="px-2 py-0.5 rounded-full bg-github-btn-bg text-xs font-medium text-theme-muted border border-theme-border flex items-center gap-1">
             <Icon icon="mdi:calendar" class="w-3 h-3" />

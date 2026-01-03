@@ -120,3 +120,19 @@ pt-BR:
     already_participant: "Você já está participando deste torneio."
     joined: "Você entrou no torneio %{tournament} com sucesso!"
     login_required: "Crie uma conta ou faça login para entrar no torneio %{tournament}."
+
+  avatars:
+    create:
+      success: "Avatar escolhido com sucesso!"
+      error: "Erro ao salvar avatar."
+
+  organizers:
+    create:
+      success: "%{nickname} agora é organizador do torneio."
+      not_found: "Usuário não encontrado."
+      already_organizer: "Este usuário já é organizador."
+      not_participant: "O usuário precisa ser participante para ser organizador."
+    destroy:
+      success: "Organizador removido."
+      cannot_remove_owner: "Não é possível remover o criador do torneio."
+    unauthorized: "Apenas o criador do torneio pode gerenciar organizadores."

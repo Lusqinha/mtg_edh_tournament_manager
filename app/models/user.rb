@@ -14,10 +14,11 @@ class User < ApplicationRecord
   has_many :match_results, dependent: :destroy
   has_many :matches, through: :match_results
 
-  normalizes :email_address, with: ->(e) { e.strip.downcase }
-  normalizes :nickname, with: ->(n) { n.strip.downcase }
+  normalizes :email_address, with: ->(e) { e&.strip&.downcase }
+  normalizes :nickname, with: ->(n) { n.strip }
 
-  validates :nickname, presence: true, uniqueness: true
+  validates :nickname, presence: true, uniqueness: { case_sensitive: false }, length: { maximum: 12 }
+  validates :email_address, uniqueness: true, allow_blank: true
   validates :uuid, presence: true, uniqueness: true, on: :update
 
   before_create :generate_uuid
